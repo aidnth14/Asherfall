@@ -15,9 +15,10 @@ from types import SimpleNamespace
 
 import pygame
 
+import ui
 import config as cfg
 from network import Connection, install_dns_fallback
-import ui
+import controller
 import weapons
 import iso
 import game
@@ -185,7 +186,7 @@ S.reload_flash = 0
 game.init(S)
 
 # --- file watcher: modules that hot-reload live ---
-WATCHED = [cfg, ui, weapons, iso, game]
+WATCHED = [ui, weapons, iso, game]
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -266,8 +267,8 @@ def check_for_reload(now):
         return False
     _last_mtimes = current
     try:
-        # reload config first so ui/game see new values, then ui, then weapons/iso, then game
-        for mod in (cfg, ui, weapons, iso, game):
+        # reload ui first so game sees new values, then weapons/iso, then game
+        for mod in (ui, weapons, iso, game):
             if mod in changed or mod is game:
                 importlib.reload(mod)
         game.rebuild(S)

@@ -169,7 +169,7 @@ def build_master_architecture_tree() -> SystemNode:
     # 8. Networking & Spatial Voice Chat
     net = root.add_child(SystemNode("MultiplayerAndNetwork", "Subsystem", "ONLINE", {"port": 8080}))
     net.add_child(SystemNode("RelayServer", "Server", "ONLINE", {"file": "server/server.py", "protocol": "TCP Asynchronous non-blocking", "tick_rate": 60}))
-    net.add_child(SystemNode("SpatialVoiceChat", "Audio", "ONLINE", {"file": "client/voice.py", "protocol": "UDP Opus / PyAudio", "spatial_attenuation": True}))
+    net.add_child(SystemNode("SpatialVoiceChat", "Audio", "ONLINE", {"file": "client/ui.py", "protocol": "UDP Opus / PyAudio", "spatial_attenuation": True}))
 
     # 9. Frame Rate Regulator & Performance Architecture
     perf = root.add_child(SystemNode("CPURegulatorAndPerformance", "Subsystem", "ONLINE", {"file": "client/main.py", "target_fps": 60}))

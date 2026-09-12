@@ -15,8 +15,8 @@ import pygame
 from weapons import Weapon, WEAPONS, GLOBAL_HOTBAR
 from enemy.enemy import EnemyManager
 
-import config as cfg
 import ui
+import config as cfg
 import iso
 import controller
 import voice as voicelib
