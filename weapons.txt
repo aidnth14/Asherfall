@@ -1,0 +1,150 @@
+================================================================================
+ASHERFALL - WEAPONS & BALLISTICS SPECIFICATION
+================================================================================
+
+1. BALLISTICS ENGINE OVERVIEW (client/weapons.py & client/game.py)
+--------------------------------------------------------------------------------
+Firearms in Asherfall operate via real-time physical projectile simulation in 3D
+isometric world space.
+
+Key Ballistics Features:
+  - Exact Muzzle Elevation: Bullets spawn at the true visual tip of the gun barrel:
+      barrel_px = 16 * scale * 1.07
+      gun_z = elev(player_x, player_y) + player_z + player_radius
+  - Mathematical Projection: Screen aim angles are mapped into isometric velocity
+    vectors (vwx, vwy) using inverse isometric coordinate transforms:
+      vwx = ((svx / HALF_W) + (svy / HALF_H)) / 2.0
+      vwy = ((svy / HALF_H) - (sox / HALF_W)) / 2.0
+  - Visual Bullet Rotation: Bullet sprites are rotated on-screen by their screen
+    aim angle so projectile tips always face the direction of flight.
+  - Obstacle & Prop Collision: Bullets collide with solid terrain, cliffs, trees,
+    and rocks, playing collision audio (play_bullet_collision_sfx) and ejecting
+    earthen or metallic ricochet sparks.
+  - Enemy Impact: Imparts immediate damage, physical knockback momentum vector
+    (e.knock_vx, e.knock_vy = kdx * 7.5, kdy * 7.5), and triggers screen shake.
+
+
+2. COMPLETE WEAPONS CATALOG
+--------------------------------------------------------------------------------
+
+A. SOLO BULLET PRECISION FIREARMS & PISTOLS
+
+1. M24 SNIPER RIFLE ("Longbow Precision")
+  - Fire Mode: SOLO
+  - Base Damage: 80 HP (High single-shot precision rifle; one-shots light mobs)
+  - Bullet Speed: 2600 px/s (Hyper-velocity projectile)
+  - Fire Rate: 1.10 seconds between shots
+  - Recoil: 1.2 (Subtle, refined kickback; smooth screenshake)
+  - Sprite: items/weapons/M24.png
+  - Ammo Sprite: items/bullets/RifleAmmoBig.png
+  - Role: Long-range precision threat eliminator; drops light mobs and chips heavy bosses without instant one-shots.
+
+2. REVOLVER ("Six-Shooter Heavy Sidearm")
+  - Fire Mode: SOLO
+  - Base Damage: 22 HP (Heavy magnum sidearm; ~49 DPS)
+  - Bullet Speed: 1300 px/s
+  - Fire Rate: 0.45 seconds
+  - Recoil: 0.5 (Reduced punchy kick)
+  - Sprite: items/weapons/Revolver.png
+  - Ammo Sprite: items/bullets/PistolAmmoBig.png
+  - Role: Dependable heavy sidearm with high single-shot impact and stopping power.
+
+3. LUGER ("Standard Service Pistol")
+  - Fire Mode: SOLO
+  - Base Damage: 14 HP (Accurate service pistol; 50 DPS)
+  - Bullet Speed: 1000 px/s
+  - Fire Rate: 0.28 seconds
+  - Recoil: 0.2 (Minimal recoil)
+  - Sprite: items/weapons/Luger.png
+  - Ammo Sprite: items/bullets/PistolAmmoBig.png
+  - Role: Dependable semi-automatic sidearm with minimal screen kick.
+
+4. M92 ("Combat Pistol")
+  - Fire Mode: SOLO
+  - Base Damage: 12 HP (High-cadence tactical sidearm; ~55 DPS)
+  - Bullet Speed: 1050 px/s
+  - Fire Rate: 0.22 seconds
+  - Recoil: 0.18 (Low recoil)
+  - Sprite: items/weapons/M92.png
+  - Ammo Sprite: items/bullets/PistolAmmoBig.png
+  - Role: Rapid-fire tactical sidearm with soft recoil.
+
+5. STARTER GUN ("Field Sidearm")
+  - Fire Mode: SOLO
+  - Base Damage: 10 HP (Baseline sidearm; 40 DPS)
+  - Bullet Speed: 950 px/s
+  - Fire Rate: 0.25 seconds
+  - Recoil: 0.15 (Minimal recoil)
+  - Sprite: items/weapons/Luger.png
+  - Ammo Sprite: items/bullets/PistolAmmoSmall.png
+  - Role: Reliable baseline starting weapon.
+
+
+B. BURST & AUTOMATIC ASSAULT WEAPONS
+
+6. M15 TACTICAL RIFLE ("3-Round Burst Carbine")
+  - Fire Mode: BURST
+  - Burst Count: 3 rounds per trigger pull
+  - Burst Interval: 0.065 seconds (65ms rapid succession)
+  - Base Damage: 26 HP per round (78 HP total burst damage)
+  - Bullet Speed: 1450 px/s
+  - Cycle Fire Rate: 0.42 seconds between bursts
+  - Recoil: 1.0
+  - Sprite: items/weapons/M15.png
+  - Ammo Sprite: items/bullets/RifleAmmoSmall.png
+  - Role: High-precision 5.56mm burst rifle; destroys agile targets.
+
+7. AK47 ("Assault Rifle")
+  - Fire Mode: AUTO (Continuous fire while left mouse button held)
+  - Base Damage: 34 HP per round (283.3 DPS)
+  - Bullet Speed: 1250 px/s
+  - Fire Rate: 0.12 seconds (500 rounds/minute)
+  - Recoil: 0.9
+  - Sprite: items/weapons/AK47.png
+  - Ammo Sprite: items/bullets/RifleAmmoBig.png
+  - Role: Premier medium-range heavy automatic rifle; high stopping power and superior DPS.
+
+8. MP5 ("Submachine Gun")
+  - Fire Mode: AUTO (High-cadence spray)
+  - Base Damage: 15 HP per round (187.5 DPS)
+  - Bullet Speed: 1000 px/s
+  - Fire Rate: 0.08 seconds (750 rounds/minute)
+  - Recoil: 0.4 (Ultra-low laser stability)
+  - Sprite: items/weapons/MP5.png
+  - Ammo Sprite: items/bullets/PistolAmmoBig.png
+  - Role: Close-quarters mobile spray; ultra-low recoil and agile run-and-gun handling.
+
+
+C. SPREAD & SHOTGUN WEAPONS
+
+9. SAWED-OFF SHOTGUN ("Trench Sweeper")
+  - Fire Mode: SPREAD
+  - Pellet Count: 5 distinct buckshot pellets per blast
+  - Spread Angles: [-0.20, -0.10, 0.00, +0.10, +0.20] radians
+  - Base Damage: 90 HP total (18 HP per pellet)
+  - Bullet Speed: 850 px/s (Speed randomized 0.7x to 1.1x per pellet)
+  - Fire Rate: 0.75 seconds
+  - Recoil: 1.1 (Reduced muzzle blast screenshake and controlled player knockback)
+  - Bullet Lifetime: 0.80 seconds (Short range cone)
+  - Sprite: items/weapons/SawedOffShotgun.png
+  - Ammo Sprite: items/bullets/ShotgunShellBig.png
+  - Role: Devastating close-range crowd control; wipes swarms instantly.
+
+10. COMPACT SHOTGUN SHELL
+  - Fire Mode: SOLO
+  - Base Damage: 10 HP
+  - Bullet Speed: 600 px/s
+  - Fire Rate: 0.40 seconds
+  - Recoil: 0.5
+  - Sprite: items/bullets/ShotgunShellSmall.png
+  - Ammo Sprite: items/bullets/ShotgunShellSmall.png
+
+
+3. HUD & AMMO DISPLAY
+--------------------------------------------------------------------------------
+A. Active Weapon Card (draw_weapon_hud):
+  - Glassmorphic card positioned at top-left (x=16, y=16).
+  - Shows high-resolution icon of the equipped firearm or tool.
+  - Displays Weapon Name, Fire Mode badge ("SOLO", "BURST", "AUTO", "SPREAD", "MELEE"),
+    and damage rating in gold lettering.
+================================================================================

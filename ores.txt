@@ -1,0 +1,81 @@
+================================================================================
+ASHERFALL - ORES, MINERALS & MINING SPECIFICATION
+================================================================================
+
+1. MINERAL & ORE CLASSIFICATION
+--------------------------------------------------------------------------------
+Ores in Asherfall are raw mineral nodes embedded throughout the procedural terrain.
+They can be extracted using Pickaxes, Hammers, and explosive weaponry.
+
+A. COAL ("Anthracite Ore")
+  - Asset: items/ore/coal.png
+  - Color Theme: Slate Charcoal (RGB 160, 165, 175)
+  - Abundance: High (Common)
+  - Occurrence:
+      * Granite boulders and surface rock props (IDs 62, 64, 65, 67, 68)
+      * Bedrock mineral seams (Tile ID 100)
+  - Uses: Smelting fuel, torch crafting, and industrial energy.
+
+B. COPPER ("Chalcopyrite Ore")
+  - Asset: items/ore/copper_ore.png
+  - Color Theme: Warm Bronze / Copper (RGB 225, 150, 95)
+  - Abundance: Medium-High (Abundant)
+  - Occurrence:
+      * Mountain rock spires and stepping stone outcroppings
+      * Bedrock mineral seams (Tile ID 100)
+  - Uses: Electrical wiring, basic tools, and alloy metallurgy.
+
+C. IRON ("Hematite Ore")
+  - Asset: items/ore/iron_ore.png
+  - Color Theme: Steel Silver (RGB 210, 215, 225)
+  - Abundance: Medium
+  - Occurrence:
+      * Dense granite boulders and cliff outcroppings
+      * Bedrock mineral seams (Tile ID 100 & 101)
+  - Uses: High-grade armor, firearm frames, and structural components.
+
+D. GOLD ("Native Aurum Ore")
+  - Asset: items/ore/gold_ore.png
+  - Color Theme: Radiant Gold (RGB 255, 220, 60)
+  - Abundance: Rare
+  - Occurrence:
+      * Deep mountain peaks and mineral seams (Tile ID 101)
+      * Deep bedrock clusters
+  - Uses: Advanced optics, electronic relays, and trade currency.
+
+E. DIAMOND ("Crystalline Gemstone")
+  - Asset: items/ore/diamond.png
+  - Color Theme: Brilliant Cyan (RGB 110, 230, 255)
+  - Abundance: Very Rare (Legendary)
+  - Occurrence:
+      * Exclusive to rich mineral seams (Tile ID 101) in high elevation ranges
+  - Uses: Tier-3 tool blades, armor reinforcement, and high-energy focal lenses.
+
+
+2. MINING ENGINE & DEPLETION DYNAMICS
+--------------------------------------------------------------------------------
+A. Node Health Tracking:
+  - Every mineable boulder prop or ore bedrock tile has 100 HP, tracked in
+    S.prop_health[(cx, cy)].
+
+B. Tool Damage Affinity:
+  - Pickaxe: Deals 35-52 damage per hit (Destroys node in 2 to 3 hits).
+  - Hammer / Shovel: Deals 22-37 damage per hit (Destroys node in 3 to 5 hits).
+  - Sword / Axes: Deals 12-15 damage per hit (Inefficient but possible).
+  - Unarmed / Non-tools: 5 damage per hit.
+
+C. Visual & Audio Feedback per Strike:
+  - Resonant metallic ping audio: play_sfx(S, "mine", 0.55).
+  - Stone sparks and grey mineral dust particles burst from impact point.
+  - Floating damage numbers: -35 or -52 hover upward with bouncy gravity physics.
+  - Prop Shaking: Target node visually rattles (prop_shake) on impact.
+
+D. Node Depletion (Shattering):
+  - When HP drops to <= 0:
+      * Shatter Audio: play_sfx(S, "break", 0.70).
+      * Heavy Debris: 14 stone and spark particles explode outward.
+      * World Transformation: The rock prop is cleared, or the ore ground tile
+        (100/101) transitions to plain smooth bedrock (Tile 0).
+      * Physical Bouncing Drops: Spawns 2 to 4 physical bouncing ore items with
+        3D parabolic trajectories.
+================================================================================

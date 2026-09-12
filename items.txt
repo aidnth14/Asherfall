@@ -1,0 +1,120 @@
+================================================================================
+ASHERFALL - ITEMS, MATERIALS & LOOT SPECIFICATION
+================================================================================
+
+1. ITEM SYSTEM OVERVIEW
+--------------------------------------------------------------------------------
+Items in Asherfall populate the world as harvestable node drops, loot pickups,
+and player inventory resources. All item sprites reside in client/assets/items/.
+
+Key Item Capabilities:
+  - 3D Physics Simulation: When dropped from trees or boulders, items launch with
+    upward velocity (vz = 160-260) and random horizontal vectors (vx, vy = +/-1.8).
+  - Gravity & Elastic Bouncing: Downward gravitational acceleration (-800 px/s^2),
+    with restitution bounce (-0.4) on ground contact until coming to a rest.
+  - Ground Shadow Casting: Every resting or airborne item casts an isometric
+    ellipse shadow onto the tile surface below.
+  - Proximity Magnetization: Items within 2.5 tiles smoothly accelerate toward
+    the player.
+  - Instant Collection: Items within 0.85 tiles are picked up, playing pickup.wav
+    and triggering a floating green "+1 [Item]" text popup.
+
+
+2. COMPLETE ITEM CATALOG & ASSET PATHS
+--------------------------------------------------------------------------------
+
+A. HARVESTABLE RAW MATERIALS (items/material/)
+  1. Log1 / Log2 / Log3 / Log4:
+     - Paths: items/material/log1.png, log2.png, log3.png, log4.png
+     - Source: Chopping pine, oak, and deadfall tree trunks.
+     - Role: Primary building material and fuel.
+  2. Wood Planks:
+     - Path: items/material/wood.png
+     - Source: Felled timber processing and dropped timber chunks.
+  3. Stick:
+     - Path: items/material/stick.png
+     - Source: Tree foliage, twigs, and light brush.
+  4. Brick:
+     - Path: items/material/brick.png
+     - Role: Hardened masonry component.
+  5. Sack:
+     - Path: items/material/sack.png
+     - Role: Storage container and loot pouch.
+  6. Boots:
+     - Path: items/material/boots.png
+     - Role: Footwear equipment.
+  7. Key:
+     - Path: items/material/key.png
+     - Role: Unlocking chests and secure facilities.
+  8. Letter & Map:
+     - Paths: items/material/letter.png, items/material/map.png
+     - Role: Lore scrolls, navigation charts, and mission directives.
+
+B. FOOD & ORGANIC CONSUMABLES (items/food/)
+  1. Apple:
+     - Path: items/food/apple.png
+     - Source: Orchard trees and foliage drops.
+  2. Bread:
+     - Path: items/food/bread.png
+     - Source: Crafted from harvested wheat.
+  3. Meat:
+     - Path: items/food/meat.png
+     - Source: Monster and wildlife defeat drops.
+  4. Mushroom:
+     - Path: items/food/mushroom.png
+     - Source: Shaded dirt patches and damp forest floors.
+  5. Fish:
+     - Path: items/food/fish.png
+     - Source: Harvested from freshwater rivers and ponds via fishing rod.
+  6. Wheat:
+     - Path: items/food/wheat.png
+     - Source: Cultivated plains and fields reaped with scythe.
+
+C. ANCIENT TOMES & BOOKS (items/books/)
+  - Assets: 28 distinct illustrated grimoires, codices, and manuals:
+    sprite_112.png through sprite_253.png
+  - Role: Lore archives, arcane research, and technology blueprints.
+
+D. AMMUNITION (items/bullets/)
+  - PistolAmmoBig / PistolAmmoSmall: Heavy & light handgun cartridges.
+  - RifleAmmoBig / RifleAmmoSmall: High-velocity rifle and carbine rounds.
+  - ShotgunShellBig / ShotgunShellSmall: Heavy buckshot cartridges.
+
+
+3. INVENTORY HUD (draw_inventory_hud)
+--------------------------------------------------------------------------------
+- Position: Top-left, below weapon HUD (x=16, y=96).
+- Design: Glassmorphic panel with subtle borders (RGB 50, 65, 85, alpha 230).
+- Contents: Real-time counts and 18x18 mini-icons for all gathered resources:
+    * Log (Wood Loam)
+    * Wood (Planks)
+    * Stick (Twigs)
+    * Coal (Carbon)
+    * Iron (Ferrum)
+    * Copper (Bronze)
+    * Gold (Aurum)
+    * Diamond (Gem)
+
+
+4. ADVENTURER'S BACKPACK & HOTBAR SYSTEM
+--------------------------------------------------------------------------------
+- 5-Cell Wooden Hotbar Dock:
+    * Centered at bottom screen with dedicated slot keybadges (1-5).
+    * Left-clicking or pressing 1-5 immediately equips any weapon or tool in that slot.
+    * Active slot is highlighted with a gold border and ambient glow.
+    * Flanked by "BAG [E]" button (left) and "CRAFT [C]" button (right).
+
+- 16-Slot Adventurer's Backpack:
+    * Opened/closed anytime via [E], Esc, or clicking "BAG [E]".
+    * Spawns with complete starter survival loadout:
+        - Hotbar: Sword x1, Pickaxe x1, Axe x1, Apple x5 (+25 HP), Wood x20
+        - Backpack: AK47 x1, Ammo x60, Bread x4 (+35 HP), Meat x2 (+45 HP), Brick x10, Key x1, Book x1
+    * Interactive Stack Management & Controls:
+        - [Left-Click]: Pick up, place, or swap item stacks.
+        - [Right-Click]: Split stack in half / place 1 item into slot.
+        - [Shift + Left-Click]: Instant quick-transfer between Backpack and Hotbar.
+        - [Shift + Right-Click] or [F] / [Space]: Direct use/eat/equip hovered slot item.
+        - [Q]: Drop 1 item into world with parabolic arc physics (Shift+[Q] drops full stack).
+        - [1-5]: While hovering any slot, instantly swaps it with that hotbar slot.
+        - Click outside backpack area: Drops held cursor item directly into the world.
+================================================================================

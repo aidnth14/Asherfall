@@ -1,0 +1,120 @@
+================================================================================
+ASHERFALL - TERRAIN & WORLD GENERATION SPECIFICATION
+================================================================================
+
+1. ARCHITECTURAL OVERVIEW
+--------------------------------------------------------------------------------
+Asherfall uses an infinite, deterministic isometric terrain generation system
+implemented in client/iso.py. The map is completely procedural and boundless in
+all directions; no static grid is saved to disk. Every tile at world coordinates
+(gx, gy) is derived on-the-fly via mathematical hash functions and multi-octave
+fractal value noise.
+
+Key Constants:
+  - Source Tile Resolution: 32x32 pixels (TILE_SRC = 32)
+  - Screen Projections: Isometric 2:1 ratio (HALF_W = 16 * scale, HALF_H = 8 * scale)
+  - Zoom Scale Range: 1x to 3x (MIN_SCALE = 1, MAX_SCALE = 3)
+  - Noise Feature Scale: 30.0 (controls frequency of biomes, patches, and hills)
+  - Origin Sanctuary: Radius of 4.5 to 6.0 tiles around (0, 0) is protected from
+    river/pond cutting to ensure a clean base camp.
+
+
+2. THEMES & BIOMES
+--------------------------------------------------------------------------------
+The terrain engine supports live switchable themes (toggleable via Tab key):
+
+A. DIRT THEME ("dirt")
+  - Ground Tiles: Cubes 0-18, and 21 (rich earthen soil, grass patches, mossy dirt)
+  - Surface Props: IDs 48-60 (pine trees, oak trunks, stumps, deadfall logs, mounds)
+  - Prop Density: 88% spawn rate (prop_rate = 0.88)
+  - Base Clear Color: RGB(54, 38, 30) - dark rich loam
+
+B. STONE THEME ("stone")
+  - Ground Tiles: IDs 61, 63, 66, 69 (granite slabs, flagstones, crushed gravel)
+  - Surface Props: IDs 62, 64, 65, 67, 68 (granite boulders, stone monoliths, rock spires)
+  - Prop Density: 86% spawn rate (prop_rate = 0.86)
+  - Base Clear Color: RGB(40, 44, 52) - cold mountain slate
+
+
+3. PROCEDURAL NOISE & ELEVATION ENGINE
+--------------------------------------------------------------------------------
+Elevation and landmass sculpting rely on deterministic pseudo-random hash functions
+and value noise interpolation:
+
+A. Hash Function (_hash01)
+  - Prime multiplier hash: (x * 374761393 + y * 668265263 + seed * 2246822519)
+  - Bit-shifts and non-linear mixing for zero spatial correlation.
+  - Normalizes output to [0.0, 1.0].
+
+B. Hermite Smoothstep Curve (_smooth)
+  - Formula: t * t * (3.0 - 2.0 * t)
+  - Guarantees continuous C1 first-derivative gradients across grid cell boundaries.
+
+C. Multi-Octave Fractal Value Noise (fractal)
+  - 4 Octaves with lacunarity of 2.0 and persistence of 0.5.
+  - Seed-offset sampling prevents octave alignment artifacts.
+  - Produces natural rolling hills, plateau cliffs, and sunken valleys.
+
+D. Elevation Calculation (elev)
+  - World coordinates (gx, gy) map to visual screen offset sy -= elev(gx, gy).
+  - Normal terrain ranges from 0 to 48 height pixels.
+  - Mountain peaks reach up to 64+ height pixels.
+  - Rivers and ponds depress elevation by -8 to -10 pixels, producing natural
+    sunken embankments along shorelines.
+
+
+4. HYDROLOGY & WATER AUTOTILING
+--------------------------------------------------------------------------------
+Water is categorized into deep bodies, shallow shores, freshwater rivers, and rapids:
+
+A. River Generation (_is_river)
+  - Domain Warping: Perlin coordinate displacement wx, wy (amplitude 8.0).
+  - Function: riv_val = fractal((gx + wx) / 55.0, (gy + wy) / 55.0, seed + 501)
+  - Centerline Distance: riv_d = abs(riv_val - 0.5) * 2.0
+  - Dynamic Meander Width: riv_w = 0.038 + 0.008 * sin(gx * 0.12 + gy * 0.15)
+  - Condition: riv_d < riv_w (creates winding ribbons across the landscape).
+
+B. Pond & Lake Generation (_is_pond)
+  - Spatial Partitioning: 28x28 grid cells (cell_size = 28).
+  - Hashed Cell Centers: Offset by +/- 7 tiles inside each chunk.
+  - Radius: 2.2 to 3.8 tiles with radial noise distortion.
+
+C. Complete Water Tile Catalog:
+  - Deep Water (Dark Blue): IDs 86, 87, 88, 89 (used in deep basins)
+  - Shallow Shore Tiles: IDs 96, 97, 98, 99
+  - Freshwater Open Water: ID 104 (calm crystal blue water, no lime highlight)
+  - Directional River Banks (with precise lime highlights):
+      * 105: Bank with lime highlight on North-East (top-right)
+      * 106: Bank with lime highlight on North-West (top-left)
+      * 107: Bank with lime highlight on South-East (bottom-right)
+      * 108: Bank with lime highlight on South-West (bottom-left)
+      * 109: North outer corner (lime on NW + NE)
+      * 110: South outer corner (lime on SW + SE)
+      * 111: West outer corner (lime on NW + SW)
+      * 112: East outer corner (lime on NE + SE)
+      * 113: Deep inlet / concave curve (lime on 3 sides)
+      * 114: Whitewater rapids and frothing waves (spawned in high-velocity bends)
+  - Stepping Stones & Water Rocks: IDs 72-81 (natural granite boulders resting in blue water)
+
+D. Autotiling Algorithm (autotile_water_cell)
+  - Inspects 4-neighborhood (N: (gx, gy-1), S: (gx, gy+1), W: (gx-1, gy), E: (gx+1, gy)).
+  - Matches water vs land adjacency to choose exact bank and corner indices.
+  - Ensures seamless visual orientation of lime waterline reflections.
+
+
+5. ORE VEINS & GEOLOGICAL DEPOSITS
+--------------------------------------------------------------------------------
+Embedded within stone terrain and mountainous formations:
+  - Tile ID 100: Iron, Coal & Copper Ore Bedrock (grey rocky slab with dark mineral seams).
+  - Tile ID 101: Gold & Diamond Ore Bedrock (crystalline sparkle and golden ore flecks).
+  - Hardness: 100 HP. Yields precious bouncy ore drops upon pickaxe depletion.
+
+
+6. SOLIDITY & OBSTACLE COLLISION
+--------------------------------------------------------------------------------
+The function iso.solid(gx, gy) enforces navigation physics:
+  - All tree props (48-60) and boulder props (62, 64, 65, 67, 68) block movement.
+  - Stepping stone props (72-81) and ore bedrock tiles (100, 101) block direct traversal.
+  - Deep water bodies are non-walkable unless bridged by stepping stones.
+  - Players and monsters slide smoothly along solid diagonal tile edges.
+================================================================================

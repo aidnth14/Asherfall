@@ -1,0 +1,192 @@
+================================================================================
+ASHERFALL - CORE MECHANICS & GAME FEEL ("JUICE") SPECIFICATION
+================================================================================
+
+1. CELESTIAL ORBITAL RING COMBAT SYSTEM
+--------------------------------------------------------------------------------
+A. Earth-Sun Astronomical Analog:
+  - The player's avatar acts as the central Sun.
+  - Held weapons, swords, and tools orbit on an elliptical ring (the Earth).
+  - Normal State: The weapon rests on the perimeter, dynamically tracking the
+    cursor aim angle without ever straying outside the ring boundary.
+
+B. 360-Degree Celestial Revolution:
+  - Left-clicking with a sword or tool triggers a full 360-degree orbital sweep
+    around the player in 0.20 seconds.
+  - Formula: tool_ang = base_angle + (progress * 2.0 * pi)
+
+C. Simultaneous Self-Axis Rotation:
+  - While completing the orbital revolution, the weapon spins rapidly on its own
+    axis/line (2 full 360-degree spins, 720 degrees total):
+    self_spin_angle = progress * 4.0 * pi
+  - Composite Visual Angle: rot_angle = -(tool_ang) + self_spin_angle
+
+D. Luminous Slash Trail Ribbons:
+  - A 16-segment fading energy ribbon traces behind the blade tip along the ring.
+  - Electric cyan-white for swords; fiery gold for axes; steel-blue for pickaxes.
+
+
+2. GAME FEEL ("JUICE") & PHYSICS SIMULATION
+--------------------------------------------------------------------------------
+A. Visceral Hit-Stop (Micro-Pause Impact Crunch):
+  - On connecting with an enemy or mining node, a 35ms micro-pause is triggered
+    (S.hitstop_timer = 0.035). Delta time (dt) is scaled down by 85% for one or
+    two frames, imparting immense physical weight and tactile punch.
+
+B. Enemy Knockback & Momentum Physics:
+  - Striking an enemy imparts a physical launch velocity vector (e.knock_vx, e.knock_vy):
+      * Sword Spin: 12.0 impulse
+      * Hammer Cleave: 14.0 impulse
+      * Bullets: 7.5 impulse
+  - Ground Drag: Velocity decays via exponential damping: math.exp(-8.5 * dt).
+  - Elastic Obstacle Bounce: Collisions with solid rocks/cliffs rebound with
+    restitution coefficient -0.35.
+
+C. Bouncy Damage Popups with Gravity:
+  - Damage numbers spawn with initial upward pop (vy = -55.0) and random horizontal
+    drift (vx = +/-20.0).
+  - Downward gravity (+130.0 px/s^2) curves the numbers downward in a natural arc.
+  - Fresh hits pop with a dynamic +30% scale before settling and fading.
+
+D. Directional Slash Shockwaves & Starburst Sparks:
+  - On sword impacts, directional slash line particles (is_slash = True) cut
+    through the air aligned with the attack angle.
+  - 12 starburst sparks spray outward at speeds up to 200 px/s.
+
+E. Dynamic Camera Recoil Shake:
+  - Screen shake is completely REMOVED for tools and swords.
+  - Screen shake for firearms is significantly reduced (subtle recoil: 0.15 for pistols, 1.1 for shotgun, 1.2 for sniper) with gentle, non-jarring camera feedback.
+
+
+3. INTERACTIVE MINING & WOODCHOPPING ENGINE
+--------------------------------------------------------------------------------
+A. Unified Hit Resolution (execute_mining_or_chopping):
+  - Automatically targets cursor hover tile (up to 4.2 tiles reach) and forward
+    aim cone projections (1.0, 1.8, 2.5, 3.2 tiles ahead).
+  - Woodchopping: Targets trees, logs, and stumps (IDs 48-60). Axe deals 35-52 dmg.
+    Plays chop.wav, eights sawdust particles, rattles the tree trunk.
+  - Mining: Targets boulders (IDs 62, 64, 65, 67, 68) and ore bedrock (IDs 100, 101).
+    Pickaxe deals 35-52 dmg. Plays mine.wav, stone sparks, rattles the rock.
+  - Node Depletion: At 0 HP, plays break.wav, bursts 14 stone/wood particles,
+    clears the prop, and spawns 2-4 physical bouncing item drops.
+
+
+4. PHYSICAL DROPS & PROXIMITY MAGNETIZATION
+--------------------------------------------------------------------------------
+A. Parabolic Bounce Physics:
+  - Dropped items launch with upward velocity (vz = 160-260) and scatter horizontally.
+  - Gravity (-800 px/s^2) pulls items down; ground collisions trigger an elastic
+    bounce (vz *= -0.4) with ground shadow projection.
+
+B. Proximity Magnetization:
+  - When the player walks within 2.5 tiles, items are attracted toward the player
+    with velocity proportional to proximity.
+
+C. Instant Inventory Collection:
+  - When within 0.85 tiles, the item is collected into S.inventory.
+  - Plays chime audio (pickup.wav) and spawns a floating green "+1 [Item]" popup.
+
+
+5. USER INTERFACE & NAVIGATION
+--------------------------------------------------------------------------------
+A. Real-Time Glass Inventory HUD (draw_inventory_hud):
+  - Displays gathered resource counts (Logs, Wood, Sticks, Coal, Iron, Copper,
+    Gold, Diamonds) with 18x18 mini icons in a sleek glass panel.
+
+B. Precision Compass System (draw_compass):
+  - Fixed dial at bottom-right of the screen.
+  - Features stationary N, S, E, W compass dial face.
+  - Red needle cover rotates dynamically to point directly toward Base Camp (0, 0).
+
+C. Heart Health Bar (draw_hearts):
+  - Renders red hearts showing current player vitality; vibrates on damage taken.
+
+D. Keybinds & Controls:
+  - [W, A, S, D] / Arrows: Screen-relative isometric movement
+  - [Space]: Jump (In-world)
+  - [Left Mouse]: Attack / Shoot / 360-degree Celestial Tool Spin / Mine
+  - [Right Mouse]: Secondary action / Mine / Chop / Use consumable from active hotbar
+  - [1 - 5]: Select Hotbar Slot (1-5) and automatically equip stored weapon/tool
+  - [Shift + Mouse Wheel]: Cycle arsenal (weapons and tools)
+  - [E]: Toggle 16-slot Adventurer's Backpack Inventory
+  - [F]: Interact / Open Chests / Loot Breakable Containers / Use hovered item
+  - [C]: Toggle Survival Crafting Bench
+  - [Q]: Drop hovered item or cursor item to world (Shift+Q drops full stack)
+  - [Tab]: Toggle visual theme (Dirt vs Stone)
+  - [Esc]: Pause Menu / Settings / Close Backpack
+  - [T] / [Enter]: Open In-Game Chat
+  - [V] (Hold): Push-to-Talk Voice Chat
+
+E. Xbox Wireless Controller / Gamepad Input (Full Dual-Stick Integration):
+  - Left Analog Stick (Axes 0, 1): Full 360-degree screen-relative isometric movement.
+    Pushing stick UP moves visually UP on screen; deadzone 0.18 with linear ramp.
+  - Right Analog Stick (Axes 2, 3): 360-degree twin-stick cursor aiming angle.
+  - [RT] / [RB] / [X Button]: Primary attack, firearm trigger, mining/chopping strike,
+    and 360-degree celestial tool spin.
+  - [LT] / [B Button] / [L3 Click]: Combat roll / sprint dash.
+  - [A Button]: Jump / interact.
+  - [Y Button] / [LB]: Cycle weapon / tool loadout in hotbar.
+  - [D-Pad]: Quick-slot navigation (Left/Right cycle hotbar, Up/Down theme toggle).
+  - Hotplugging: Dynamic connect/disconnect detection without restarting game.
+
+
+
+6. MULTIPLAYER NETWORKING & AUDIO
+--------------------------------------------------------------------------------
+A. Relay Server Architecture (server/server.py):
+  - High-performance asynchronous non-blocking TCP socket server.
+  - Broadcasts position, animation, aim angle, and state packets at 60Hz.
+
+B. Spatial Voice Chat (client/voice.py):
+  - Low-latency UDP voice streaming using Opus audio compression and PyAudio.
+  - Proximity volume attenuation and floating microphone indicators.
+
+
+7. FRAME RATE REGULATION & HARDWARE OPTIMIZATION
+--------------------------------------------------------------------------------
+A. Responsive 60 FPS Target:
+  - Active Gameplay & Menus: Butter-smooth 60.0 FPS target (16.6ms frame pacing)
+    eliminates input latency and ensures fluid character motion and combat.
+  - Minimized / Inactive: Throttles to 20 FPS to conserve energy when the window
+    loses focus or is minimized.
+
+B. Non-Busy Hybrid Sleep Governor (client/main.py):
+  - Eliminates 100% busy-wait spin loops by calculating remaining frame margin and
+    yielding thread execution to the OS kernel via non-busy sleep (time.sleep).
+  - Aligns frame delivery with pygame.time.Clock for rock-solid 60 FPS pacing without
+    sacrificing responsiveness or jittering physics steps.
+
+C. Isometric Sliding Window Buffer (client/iso.py):
+  - Pre-renders a padded viewport canvas (PAD=96px, ~3-6 tiles on each edge).
+  - Directly blits the cached surface with offset when the camera drifts within the margin.
+  - Avoids re-blitting 1,000+ individual isometric tiles every frame, dropping tile
+    rendering overhead by over 95%.
+  - Version-based cache invalidation (world.version) prevents re-rendering on tile queries.
+
+D. Audio Thread & Surface Compositing Optimization:
+  - SDL Mixer pre-initialized with 8192 audio buffer, dropping CoreAudio background
+    thread CPU usage from 2.5% down to ~0.9%.
+  - Pre-composed full-screen menu overlay (S._menu_dim_vignette) eliminates redundant
+    full-screen per-pixel alpha blending copies.
+================================================================================
+8. SWIMMING DYNAMICS & PLAYER DEATH LIFECYCLE
+--------------------------------------------------------------------------------
+A. Freshwater Swimming Dynamics:
+  - Detection: Client checks Iso.is_water(gx, gy) across river channels, ponds, and rapids.
+  - Speed Damping: Moving through water tiles while grounded (z <= JUMP_CLEAR) reduces
+    movement speed to 65% of land speed, giving authentic aquatic resistance.
+  - Concentric Water Ripples: Two expanding elliptical wake rings pulse outward at the waterline.
+  - Buoyancy Wave Bobbing: Vertical harmonic oscillation (sin 5.2 Hz) bobs avatar body in rhythm.
+  - Waterline Foam Wake: Submerges lower 35% of player avatar beneath water level with a
+    glowing cyan-white foam wake ring.
+
+B. Player Death & Respawn Lifecycle:
+  - Trigger: Taking fatal damage (HP <= 0) initiates player death sequence.
+  - State Locking: Disables movement inputs, weapons, and tool interactions.
+  - Collapsing Spin Animation: Avatar shrinks and rotates down into the terrain over 2.0 seconds.
+  - Ascending Ghost Soul Orb: Radiant ethereal cyan spirit orb rises 65px above death point
+    accompanied by orbiting spirit wisps.
+  - Respawn Banner: Displays "RESPAWNING IN Xs..." countdown overlay above the death location.
+  - Base Camp Respawn: Resets player to 100 HP, repositions avatar at Base Camp spawn cell,
+    snaps camera back smoothly, and displays a glowing green "REVIVED!" celebration popup.
+================================================================================

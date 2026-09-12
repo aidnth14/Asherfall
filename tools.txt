@@ -1,0 +1,126 @@
+================================================================================
+ASHERFALL - TOOLS & CELESTIAL ORBITAL COMBAT SPECIFICATION
+================================================================================
+
+1. TOOLS ROSTER & AFFINITIES
+--------------------------------------------------------------------------------
+Tools serve dual functions: harvesting environmental resources (woodchopping and
+mining) and close-quarters melee combat.
+
+A. SWORD ("Blade of Asher")
+  - Damage: 45 base (boosted to 58 on celestial spin)
+  - Hitbox Reach: 2.85 tiles (Extra wide sweeping arc)
+  - Attack Rate / Cooldown: 0.35 seconds
+  - Target Affinity:
+      * Enemies: Cleaves in a full 360-degree radius on celestial spin
+      * Trees / Logs: 20-35 damage per strike
+      * Rocks: 12 damage
+  - Special FX: Electric cyan-white celestial trail ribbon and directional cuts.
+
+B. AXE ("Lumberjack Cleaver")
+  - Damage: 25 base (boosted to 35-52 vs trees and logs)
+  - Hitbox Reach: 2.45 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Trees / Stumps / Deadfall (IDs 48-60): High efficiency; chops down trees
+        in 2-3 strikes, yielding bouncing logs, sticks, and wood planks.
+      * Enemies: 28 damage with outward knockback.
+  - Special FX: Fiery amber-gold sweep arc, flying sawdust and wood chips.
+
+C. PICKAXE ("Miner's Mattock")
+  - Damage: 25 base (boosted to 35-52 vs rocks and ore veins)
+  - Hitbox Reach: 2.45 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Boulders / Spires (IDs 62, 64, 65, 67, 68): Breaks boulders into stone and ores.
+      * Ore Bedrock (IDs 100, 101): Shatters deep deposits to extract iron, coal,
+        copper, gold, and diamonds.
+      * Enemies: 28 damage with armor-cracking impact.
+  - Special FX: High metallic ringing ping (mine.wav), bright white stone sparks.
+
+D. HAMMER ("War Maul")
+  - Damage: 24 base (boosted to 35 vs rocky armor)
+  - Hitbox Reach: 2.45 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Knockback Impulse: 14.0 (Highest knockback in the game)
+  - Target Affinity:
+      * Shatters stone props and knocks large enemies across terrain.
+  - Special FX: Low sub-bass impact thud, expanding ground shockwave.
+
+E. SHOVEL ("Excavator Spade")
+  - Damage: 18 base (boosted to 28 vs dirt/gravel)
+  - Hitbox Reach: 2.20 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Soil scraping and light rock chipping.
+
+F. MALLET ("Woodsman's Mallet")
+  - Damage: 22 base
+  - Hitbox Reach: 2.20 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Splitting logs and medium blunt impacts.
+
+G. SCYTHE / HOE ("Harvester's Reaping Blade")
+  - Damage: 20 base
+  - Hitbox Reach: 2.20 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Clearing high brush, reeds, and crops.
+
+H. FISHING ROD ("Angler's Line")
+  - Damage: 15 base
+  - Hitbox Reach: 2.20 tiles
+  - Attack Rate / Cooldown: 0.40 seconds
+  - Target Affinity:
+      * Water interaction and recreational fishing.
+
+
+2. CELESTIAL ORBITAL RING SYSTEM (EARTH-SUN DYNAMICS)
+--------------------------------------------------------------------------------
+When holding any melee weapon or tool, the tool does not sit statically in the
+player's hand. Instead, it orbits the player on a mathematically defined ellipse:
+  - Conceptual Analog: Player is the Sun (origin); Tools are Earth in orbit.
+  - Ring Dimensions: rx = 28 * scale, ry = 18 * scale (expands to 32x20 during spins).
+  - Normal State: The tool rests on the orbital ring perimeter, pointing toward
+    the mouse cursor, and cannot move beyond the perimeter boundary.
+
+A. The 360-Degree Celestial Revolution:
+  - Trigger: Left-Click (tap or hold) when holding any tool or sword.
+  - Revolution: The weapon executes a complete 360-degree circular orbit around
+    the player in 0.20 seconds (ultra-fast, snappy feel).
+  - Formula: tool_ang = base_aim_angle + (progress * 2 * pi)
+
+B. Self-Spin On Weapon's Own Axis:
+  - Mirroring Earth's diurnal rotation, the weapon simultaneously spins rapidly
+    around its own central point/line during the orbital transit.
+  - Self-Spin: Completes two full 360-degree rotations (720 degrees total):
+    self_spin_angle = progress * 4 * pi
+  - Composite Visual Angle: rot_angle = -(tool_ang) + self_spin_angle
+
+C. Luminous Slash Trail Ribbons:
+  - Sweeping behind the weapon during the spin is a multi-layered luminous arc
+    sampled across 16 geometric segments along the ring perimeter.
+  - Segment alpha tapers off from 240 down to 0, producing a brilliant comet tail.
+
+D. Hitbox Cleave:
+  - During the 360-degree spin, all enemies within reach (2.85 tiles for Sword,
+    2.45 tiles for Tools) are hit, taking full damage and receiving a radial
+    outward launch impulse away from the player.
+
+
+3. VISCERAL HIT-STOP & TACTILE JUICE
+--------------------------------------------------------------------------------
+A. Hit-Stop (Micro-Pause Impact):
+  - On connecting with an enemy, a 35ms micro-pause (S.hitstop_timer = 0.035)
+    slows game physics by 85%, providing visceral crunch and impact weight.
+
+B. Screen Shake & Directional Flash:
+  - Screen shake is strictly REMOVED (0.0) for tools and swords, ensuring clean, fluid vision during melee combat and mining.
+  - Directional slash line particles burst along the angle of impact.
+
+C. Quick Hotkeys:
+  - Key [X]: Instantly equips Axe.
+  - Key [C]: Instantly equips Pickaxe.
+  - Key [E]: Cycles next weapon/tool in the hotbar.
+================================================================================

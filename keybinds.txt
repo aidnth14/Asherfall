@@ -1,0 +1,90 @@
+ASHERFALL — CONTROLS
+=======================
+
+MENU & NAVIGATION
+-----------------
+Left Click            Select buttons, text fields, or settings
+Escape                Go back, open/close pause menu
+Enter                 Confirm selections
+
+IN-GAME (ONLINE / SOLO)
+-----------------------
+W A S D               Move (or use Arrow Keys)
+L-Shift               Dash (Cooldown)
+Space                 Jump (In-world)
+1 - 5                 Select Hotbar Slot (1-5) & Auto-Equip Weapon/Tool
+Mouse Wheel           Camera Zoom In / Out
+Shift + Mouse Wheel   Cycle Arsenal (Weapons and Tools)
+Left Click            Attack / Shoot / Mine
+Right Click           Mine / Chop / Break / Use Consumable from Active Slot
+E                     Open / Close Adventurer's Backpack Inventory
+F                     Interact / Open Chests & Loot Breakables / Use Item
+C                     Open / Close Survival Crafting Bench
+T or Enter            Open text chat (type message, press Enter to send, Esc to cancel)
+V (Hold)              Push-to-Talk Voice Chat
+Tab                   Cycle world rendering styles / palettes
+R                     Regenerate world layout
+- / =                 Zoom Out / Zoom In
+
+ADVENTURER'S BACKPACK INVENTORY CONTROLS
+-----------------------------------------
+E or Esc              Close Backpack Inventory
+Left Click            Pick up / Place / Swap Item Stack
+Right Click           Pick up half stack / Place 1 item into slot
+Shift + Left Click    Quick-Move Stack between Backpack & Hotbar
+Shift + Right Click   Direct Use / Consume / Equip targeted item
+F or Space            Use / Consume / Equip hovered slot item
+Q                     Drop 1 hovered / cursor item to world
+Shift + Q             Drop entire stack of hovered / cursor item to world
+1 - 5 (Hovering)      Swap hovered slot directly with Hotbar Slot 1-5
+Click Outside Window  Drop held cursor item into world
+
+IN-GAME (LOCAL CO-OP)
+---------------------
+Player 1: W A S D     (Move)   | Space  (Jump)
+Player 2: Arrows      (Move)   | RShift (Jump)
+Player 3: I J K L     (Move)   | O      (Jump)
+Player 4: T F G H     (Move)   | Y      (Jump)
+
+DEBUG & ENGINE
+--------------
+F1                    Toggle Debug Info (If implemented)
+F2                    Force regenerate soundtrack (Assets)
+
+GAMEPAD CONTROLS (XBOX, PLAYSTATION, NINTENDO SWITCH)
+------------------------------------------------------
+All controller families are auto-detected (Xbox 360/One/Series, PS4/PS5 DualSense, Switch Pro/Joy-Con):
+
+Action                   Xbox                    PlayStation             Nintendo Switch
+-------------------------------------------------------------------------------------------------
+Movement                 Left Stick / D-Pad      Left Stick / D-Pad      Left Stick / D-Pad
+Aiming (Twin-Stick)      Right Stick             Right Stick             Right Stick
+Jump                     A Button                Cross (✕)               B Button / A Button
+Roll / Dodge             B Button / LT           Circle (◯) / L2         A Button / ZL
+Attack / Shoot / Mine    RT (Right Trigger)      R2                      ZR
+Use Active Hotbar Item   X Button                Square (□)              Y Button
+Crafting Bench (Toggle)  Y Button                Triangle (△)            X Button
+Dash (Quick Burst)       Left Stick Click (L3)   L3 Click                L3 Click
+Cycle Hotbar Prev        LB (Left Bumper)        L1                      L / D-Pad Left
+Cycle Hotbar Next        RB (Right Bumper)       R1                      R / D-Pad Right
+Pause Menu               Start / Menu            Options                 + (Plus) Button
+Notepad / Map            Back / View             Share / Touchpad        - (Minus) Button
+
+MENU & UI CONTROLLER NAVIGATION:
+----------------------------------
+- Virtual Mouse Cursor:  Left Stick (in menus) or Right Stick (anywhere) glides the mouse cursor smoothly.
+- Mouse Click (Select):  A Button / Cross (✕) / RT (Right Trigger) clicks UI buttons, inputs & steppers.
+- Drag Sliders:          Hold A Button or RT while moving the stick to drag volume & smoothness sliders.
+- Snappy Focus (D-Pad):  D-Pad Up / Down snaps cursor and focus through all menu, setup, settings & pause items.
+- Steppers & Sliders:    D-Pad Left / Right decrements / increments player count, audio volume, cam smooth, etc.
+- Back / Cancel:         B Button / Circle (◯) / LT backs out of setup, closes settings, journals & pauses.
+- Toggle Pause:          Start / Options / + (Plus)
+
+
+LOCAL CO-OP CONTROLLER ASSIGNMENT:
+----------------------------------
+- Player 1: Gamepad 1 (or Keyboard W A S D)
+- Player 2: Gamepad 2 (or Keyboard Arrows)
+- Additional players seamlessly use plugged-in gamepads or configured keyboards.
+- Gamepads can be connected or disconnected at any time (hot-plugging supported).
+

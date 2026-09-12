@@ -1,0 +1,236 @@
+================================================================================
+ASHERFALL - ENEMY ECOSYSTEM & AI DIRECTOR SPECIFICATION (PERCEPTION 2.0)
+================================================================================
+
+1. ADAPTIVE AI DIRECTOR ARCHITECTURE (client/enemy/enemy.py)
+--------------------------------------------------------------------------------
+The Asherfall enemy system is coordinated by an adaptive AI Director (EnemyManager)
+inspired by Left 4 Dead and Alien: Isolation.
+
+A. Pacing Phases:
+  - PHASE_BUILDUP: Low-threat exploration phase. Builds suspense while the player
+    navigates terrain. Spawns are paced slowly (interval ~2.2s).
+  - PHASE_PEAK: High-intensity engagement phase triggered when enemies make combat
+    contact or when intensity reaches a critical threshold. Spawns coordinated
+    flanking encounters (interval ~1.2s).
+  - PHASE_RELIEF: 8-15 second respite window following combat clearance to allow
+    healing, resource pickup, and repositioning.
+
+B. Rolling 60-Second Performance Score & Dynamic Difficulty:
+  - Tracks player combat performance over a rolling 60s sliding window:
+      * Enemy Kill: +2.0 points
+      * Damage Taken: -0.05 points per HP lost
+      * Near-Death State (HP < 20%): -4.0 points
+  - Cruising State (Score > +5.0):
+      * PEAK phase spawns 25% faster.
+      * Pack capacity increases by +1 (up to max 6 active enemies).
+  - Struggling State (Score < -5.0):
+      * PEAK phase spawns 40% slower.
+      * Pack capacity reduced by -2 (minimum 2 enemies).
+      * RELIEF phase stretches to 15.0 seconds for player recovery.
+
+C. Dynamic Group Positioning (Anti-Stacking):
+  - When 2 or more enemies target the player, they claim distinct angular slots
+    distributed evenly around the player (e.g. 360° / count * index).
+  - Prevents monsters from stacking into a single sprite clump.
+  - Flankers curve around the player's flanks while vanguard units engage frontally.
+
+D. Dynamic Trajectory Spawning & Emergence:
+  - Spawns monsters 5 to 7 tiles ahead in the player's forward travel vector.
+  - Directional ground dust, rock chips, or mist burst 0.8s prior to emergence.
+
+
+2. UNIVERSAL UPGRADES & PERCEPTION 2.0 (client/enemy/base.py)
+--------------------------------------------------------------------------------
+A. Perception 2.0 (Conical Vision & Noise Pings):
+  - Sight Cone: Vision is no longer an omniscient radius; enemies possess a directional
+    sight cone (default 100° field of view):
+      * Standard (Rat, Bloodmonster, Demon): 100° FOV cone.
+      * Aerial Sonar (Bat): 220° ultra-wide radar cone.
+      * Ethereal Gaze (Skull): 160° broad spectral cone.
+      * Seismic Tremor (Golem): 100° visual cone + 360° ground tremor sense (up to 4.5 tiles).
+  - Noise Ping System: Loud actions emit acoustic shockwaves that alert enemies through fog/walls:
+      * Gunfire: 12.0 tiles radius
+      * Mining / Chopping Hit: 5.0 tiles radius
+      * Melee Swing / Spin: 3.0 tiles radius
+      * Sprinting / Dashing: 2.0 tiles radius
+  - Spotting Beat (Alert Pause):
+      * Upon initial visual detection, enemies enter STATE_ALERT for a brief hesitation:
+        Default: 0.40s ("Wait, what was that?")
+        Fast Reflexes (Bat, Skull): 0.20s
+        Slow Tremor Sensing (Golem): 0.70s
+  - Investigate State:
+      * Losing line of sight does not reset immediately to IDLE.
+      * Enemy enters STATE_INVESTIGATE, paths to the player's last known location,
+        searches for 3.0 to 5.0 seconds, and only returns to IDLE if no trace is found.
+
+B. Expanded 10-State Finite State Machine:
+  1. STATE_IDLE: Ambient resting, scanning, or territory wandering.
+  2. STATE_ALERT: Spotting beat pause with visual alert mark ("!").
+  3. STATE_INVESTIGATE: Searching last known coordinates of a lost target or noise ping.
+  4. STATE_CHASE: Coordinated pursuit utilizing angular slot assignments.
+  5. STATE_WINDUP: Telegraph anticipation frame before hit lands; weapon/claw glints.
+  6. STATE_ATTACK: Locked attack animation sequence; deals damage on strike frame.
+  7. STATE_RECOVER: Post-attack recovery window where enemy cannot attack or turn fast.
+  8. STATE_STAGGERED: Poise broken (hit 0 poise); 1.4s stun window with orbiting stars.
+  9. STATE_RETREAT: Tactical repositioning or fleeing (low HP / cowardly state).
+  10. STATE_DEATH: Disintegration and corpse decay sequence with item drops.
+
+C. Poise & Stagger System:
+  - Every enemy possesses an independent Poise Meter alongside HP.
+  - Heavy weapons (M24 sniper, hammer, 360° sword spin, shotgun) rapidly drain poise.
+  - Light weapons (pistols, SMGs) chip poise slowly.
+  - Reaching 0 Poise triggers STATE_STAGGERED:
+      * 1.4s complete stun window.
+      * Golden orbiting stars rendered above the enemy's head.
+      * Takes +25% bonus damage from all attacks while staggered.
+  - Rapid Poise Regeneration: If an enemy takes no damage for 1.5 - 2.0 seconds,
+    its poise meter rapidly regenerates back to 100% capacity.
+
+
+3. COMPLETE ENEMY ROSTER & SPECIAL TRICKS
+--------------------------------------------------------------------------------
+
+A. RAT ("Swarm Scavenger")
+  - Source File: client/enemy/rat.py
+  - Max Health (HP): 30 | Poise: 15
+  - Movement Speed: 2.05 tiles/sec | Sight Cone: 100° (2.4 tiles range)
+  - Attack Radius: 0.80 tiles | Damage: 8 HP per bite
+  - Windup: 0.15s | Recover: 0.30s
+  - SPECIAL TRICK - "Pack Courage & Lone Panic":
+      * Brave in Packs: If an allied rat is within 4.0 tiles, gains +20% movement speed
+        and commits unconditionally to attacks.
+      * Cowardly Alone: If isolated against an armed player, has a 50% chance to flee
+        (STATE_RETREAT) instead of engaging.
+
+B. BAT ("Aerial Sonar Scout")
+  - Source File: client/enemy/bat.py
+  - Max Health (HP): 28 | Poise: 15
+  - Movement Speed: 2.15 tiles/sec | Sight Cone: 220° Sonar (5.5 tiles range)
+  - Attack Radius: 0.85 tiles | Damage: 10 HP per dive
+  - Windup: 0.25s | Recover: 0.30s
+  - SPECIAL TRICK - "Aerial Standoff & Compass Flank":
+      * Standoff Orbit: Holds an aerial standoff distance of 3.5 tiles around the player.
+      * Compass Repositioning: Must reposition to a new compass angle (+90° to +180° offset)
+        before executing its next dive-bomb swoop.
+
+C. SKULL ("Spectral Stalker")
+  - Source File: client/enemy/skull.py
+  - Max Health (HP): 45 | Poise: 40
+  - Movement Speed: 1.75 tiles/sec | Sight Cone: 160° Spectral (4.5 tiles range)
+  - Attack Radius: 0.85 tiles | Damage: 14 HP per bite
+  - Windup: 0.30s | Recover: 0.50s
+  - SPECIAL TRICK - "Spectral Blink":
+      * When the player closes within 2.0 tiles, the skull instantly teleports (blinks)
+        2.0 - 3.0 tiles away into safety with cyan ectoplasm particles (4.0s cooldown).
+
+D. BLOODMONSTER / BLOODSEEKER ("Flesh Hunter")
+  - Source File: client/enemy/bloodseeker.py
+  - Max Health (HP): 75 | Poise: 50
+  - Movement Speed: 1.40 tiles/sec | Sight Cone: 100° (3.5 tiles range)
+  - Attack Radius: 0.90 tiles | Damage: 16 HP per slash
+  - Windup: 0.35s | Recover: 0.50s
+  - SPECIAL TRICK - "Blood Frenzy":
+      * When pursuing a wounded target (< 40% HP) or chasing for 6.0+ continuous seconds,
+        enters Blood Frenzy: +25% movement speed and -20% attack cooldown.
+
+E. DEMON ("Elite Vanguard")
+  - Source File: client/enemy/demon.py
+  - Max Health (HP): 110 | Poise: 90
+  - Movement Speed: 1.55 tiles/sec | Sight Cone: 100° (4.0 tiles range)
+  - Attack Radius: 0.95 tiles | Damage: 22 HP per cleave
+  - Windup: 0.60s | Recover: 0.80s
+  - SPECIAL TRICK - "Emboldened Commander Aura & Infernal Ward":
+      * Emits a demonic commander aura (6.0 tiles radius) that grants all nearby Rats
+        and Bats +15% attack damage and +10% movement speed.
+      * Infernal Ward: Thick hellfire hide absorbs heavy high-caliber single hits
+        (-30% damage from M24 sniper rifle) unless STAGGERED or in RECOVER.
+
+F. GOLEM ("Colossus Titan")
+  - Source File: client/enemy/golem.py
+  - Max Health (HP): 180 | Poise: 220
+  - Movement Speed: 1.05 tiles/sec | Sight Cone: 100° + 360° Seismic Tremor (4.5 tiles)
+  - Attack Radius: 1.05 tiles | Damage: 28 HP per slam
+  - Windup: 0.80s | Recover: 1.20s
+  - SPECIAL TRICK - "Stone Carapace & Tremor Sense":
+      * Resists light gunfire damage by -60% (Pistols, MP5, SMGs).
+      * Armor penetration: Takes full unmitigated damage when STAGGERED or during
+        its long 1.2s post-slam RECOVER window.
+================================================================================
+4. ANIMATED SPRITE INTEGRATION & CONTINUOUS COMBAT DIRECTOR
+--------------------------------------------------------------------------------
+A. High-Fidelity Sprite Sheet Integration:
+  - All 6 monsters now render their official animated sprite sheets loaded directly
+    from client/assets/characters/:
+      * Demon (client/assets/characters/demon): Demon_A_Idle.png, Demon_A_Walk.png,
+        Demon_A_Attack01.png, Demon_A_Hurt.png, Demon_A_Death.png (100x100 frame grid).
+      * Blood Monster (client/assets/characters/blood_monster): Blood Monster_A_Idle.png,
+        Blood Monster_A_Walk.png, Blood Monster_A_Attack01.png, Blood Monster_A_Hurt.png,
+        Blood Monster_A_Death.png (100x100 frame grid).
+      * Skull (client/assets/characters/skull): Bones_SingleSkull_Idle.png,
+        Bones_SingleSkull_Fly.png, Bones_SingleSkull_Hit.png, Bones_SingleSkull_Death.png.
+      * Bat (client/assets/characters/bat): Bat_Fly.png, Bat_Attack.png, Bat_Hit.png, Bat_Death.png.
+      * Golem (client/assets/characters/golem): Golem_IdleA.png, Golem_Run.png,
+        Golem_AttackA.png, Golem_HitA.png, Golem_DeathA.png.
+      * Rat (client/assets/characters/rat): rat_idle.png, rat_walk.png, rat_attack.png,
+        rat_hurt.png, rat_death.png.
+  - Zero-allocation sprite scaling and flipping cache (_SCALED_FRAME_CACHE) prevents
+    frame generation garbage and maintains CPU efficiency under 3-4%.
+
+B. Continuous Spawner & Stalker AI Architecture:
+  - Dynamic trajectory spawner places enemies forward in travel cone.
+  - Fresh spawns emerge in STATE_IDLE, fully honoring Perception 2.0:
+      * Conical vision (100° FOV cone, 220° sonar for Bats) detects the player visually.
+      * Acoustic noise pings (gunfire, mining, chopping, sprinting) trigger STATE_INVESTIGATE.
+      * Stealth and line-of-sight concealment are preserved.
+  - Fog despawn distance maintained at 13.0 tiles so distant inactive
+    stragglers do not consume the pack limit cap (max 5-6).
+  - AI Director continuously cycles BUILDUP -> PEAK -> RELIEF -> BUILDUP.
+================================================================================
+5. INTELLIGENT PATHFINDING, DEATH ANIMATION & SWIMMING DYNAMICS
+--------------------------------------------------------------------------------
+A. Intelligent Pathfinding & Route Planning (client/enemy/navigation.py):
+  - Local Bounded 8-Directional A* Search:
+      * Replaces naive vector pursuit with bounded grid exploration avoiding obstacles,
+        solid boulders, spires, terrain cliffs, and deep water.
+      * Fast execution (~0.04ms per search) with caching. Re-plans only when waypoints
+        are depleted or the target drifts beyond tolerance (>1.5 tiles).
+  - String-Pulling Path Smoothing (Funnel Algorithm):
+      * Cleans jagged grid staircases into smooth, direct diagonal routes using line-of-sight
+        raycasting across unobstructed tiles.
+  - Tangential Obstacle Sliding:
+      * When contacting a solid rock or prop corner, enemies dynamically decompose movement
+        into sliding axes, preventing sticking or halting dead.
+  - Terrain & Water Traversal Profiles:
+      * Aerial Units (Bat, Skull): can_fly = True. Glides unimpeded across solid boulders
+        and open water.
+      * Amphibious Units (Rat): can_swim = True. Traverses rivers and water bodies freely.
+      * Land Vanguard (Demon, Bloodmonster, Golem): can_fly = False, can_swim = False.
+        Intelligently routes around solid obstacles and deep water.
+
+B. Death with Animation & Ground Sinking:
+  - Extended Death Sequence Duration:
+      * Enemies smoothly play their full animated sprite sequence (Death animation) across
+        1.15 seconds (death_total_dur = 1.15s).
+  - Ground Sinking & Alpha Dissolution:
+      * Vertical ground sink sinks corpse smoothly into the soil (progression * 6.0 * scale).
+      * Smooth alpha fade dissolves corpse from 255 to 0 opacity during the second half
+        of the death timer (prog > 0.45).
+  - Species-Specific Visceral Death Particle Bursts:
+      * Skull: Cyan ectoplasmic spark burst and soul dust.
+      * Demon: Fiery magma embers, crimson smoke, and soot particles.
+      * Blood Monster: Splattering crimson blood mist droplets.
+      * Golem: Heavy stone rubble chips, gravel, and dust shards.
+      * Bat: Shadowy violet wing flutters and dark mist.
+      * Rat: Earthy brown fur tufts and pink flecks.
+
+C. Swimming Animation & Waterline Dynamics:
+  - Dynamic Freshwater Detection (Iso.is_water):
+      * Identifies river channels, ponds, and rapids (tile IDs 104 to 114).
+  - Concentric Expanding Water Ripples:
+      * Two expanding elliptical ripple rings pulse outwards at the waterline.
+  - Waterline Wave Bobbing:
+      * Vertical harmonic buoyancy bobbing (sine wave 5.0 Hz) synchronizes with water motion.
+  - Foam Spray & Waterline Cutoff:
+      * Submerges the lower portion of the sprite with a foam waterline ring and spray.
+================================================================================
