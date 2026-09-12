@@ -44,7 +44,6 @@ WEAPONS = {
 
     # Melee Weapons & Tools
     "Sword": Weapon("Sword", 0.35, 0, 45, "items/weapons/sword.png", "items/weapons/sword.png", recoil=0.0, fire_mode="MELEE"),
-    "Shotgunshellsmall": Weapon("Shotgunshellsmall", 0.4, 600, 10, "items/bullets/ShotgunShellSmall.png", "items/bullets/ShotgunShellSmall.png", recoil=0.2, fire_mode="SOLO"),
     "Axe": Weapon("Axe", 0.4, 0, 25, "items/tools/axe.png", "items/tools/axe.png", recoil=0.0, fire_mode="TOOL"),
     "Pickaxe": Weapon("Pickaxe", 0.4, 0, 25, "items/tools/pickaxe.png", "items/tools/pickaxe.png", recoil=0.0, fire_mode="TOOL"),
     "Shovel": Weapon("Shovel", 0.4, 0, 18, "items/tools/shovel.png", "items/tools/shovel.png", recoil=0.0, fire_mode="TOOL"),
@@ -52,30 +51,7 @@ WEAPONS = {
     "Hammer": Weapon("Hammer", 0.4, 0, 24, "items/tools/hammer.png", "items/tools/hammer.png", recoil=0.0, fire_mode="TOOL"),
     "Scythe": Weapon("Scythe", 0.4, 0, 20, "items/tools/hoe.png", "items/tools/hoe.png", recoil=0.0, fire_mode="TOOL"),
     "Mallet": Weapon("Mallet", 0.4, 0, 22, "items/tools/mallet.png", "items/tools/mallet.png", recoil=0.0, fire_mode="TOOL"),
-    "Mushroom": Weapon("Mushroom", 0.4, 600, 10, "items/food/mushroom.png", "items/food/mushroom.png", recoil=0.5),
-    "Apple": Weapon("Apple", 0.4, 600, 10, "items/food/apple.png", "items/food/apple.png", recoil=0.5),
-    "Bread": Weapon("Bread", 0.4, 600, 10, "items/food/bread.png", "items/food/bread.png", recoil=0.5),
-    "Fish": Weapon("Fish", 0.4, 600, 10, "items/food/fish.png", "items/food/fish.png", recoil=0.5),
-    "Meat": Weapon("Meat", 0.4, 600, 10, "items/food/meat.png", "items/food/meat.png", recoil=0.5),
-    "Wheat": Weapon("Wheat", 0.4, 600, 10, "items/food/wheat.png", "items/food/wheat.png", recoil=0.5),
-    "Brick": Weapon("Brick", 0.4, 600, 10, "items/material/brick.png", "items/material/brick.png", recoil=0.5),
-    "Coal": Weapon("Coal", 0.4, 600, 10, "items/ore/coal.png", "items/ore/coal.png", recoil=0.5),
-    "Iron_ore": Weapon("Iron_ore", 0.4, 600, 10, "items/ore/iron_ore.png", "items/ore/iron_ore.png", recoil=0.5),
-    "Wood": Weapon("Wood", 0.4, 600, 10, "items/material/wood.png", "items/material/wood.png", recoil=0.5),
-    "Copper_ore": Weapon("Copper_ore", 0.4, 600, 10, "items/ore/copper_ore.png", "items/ore/copper_ore.png", recoil=0.5),
-    "Gold_ore": Weapon("Gold_ore", 0.4, 600, 10, "items/ore/gold_ore.png", "items/ore/gold_ore.png", recoil=0.5),
-    "Diamond": Weapon("Diamond", 0.4, 600, 10, "items/ore/diamond.png", "items/ore/diamond.png", recoil=0.5),
-    "Key": Weapon("Key", 0.4, 600, 10, "items/material/key.png", "items/material/key.png", recoil=0.5),
-    "Book": Weapon("Book", 0.4, 600, 10, "items/material/book.png", "items/material/book.png", recoil=0.5),
-    "Map": Weapon("Map", 0.4, 600, 10, "items/material/map.png", "items/material/map.png", recoil=0.5),
-    "Letter": Weapon("Letter", 0.4, 600, 10, "items/material/letter.png", "items/material/letter.png", recoil=0.5),
-    "Sack": Weapon("Sack", 0.4, 600, 10, "items/material/sack.png", "items/material/sack.png", recoil=0.5),
-    "Boots": Weapon("Boots", 0.4, 600, 10, "items/material/boots.png", "items/material/boots.png", recoil=0.5),
-    "Stick": Weapon("Stick", 0.4, 600, 10, "items/material/stick.png", "items/material/stick.png", recoil=0.5),
-    "Log1": Weapon("Log1", 0.4, 600, 10, "items/material/log1.png", "items/material/log1.png", recoil=0.5),
-    "Log2": Weapon("Log2", 0.4, 600, 10, "items/material/log2.png", "items/material/log2.png", recoil=0.5),
-    "Log3": Weapon("Log3", 0.4, 600, 10, "items/material/log3.png", "items/material/log3.png", recoil=0.5),
-    "Log4": Weapon("Log4", 0.4, 600, 10, "items/material/log4.png", "items/material/log4.png", recoil=0.5),
 }
 
 GLOBAL_HOTBAR = [k for k, w in WEAPONS.items() if "weapons" in w.gun_image_path or "tools" in w.gun_image_path]
+

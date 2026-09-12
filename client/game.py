@@ -1024,6 +1024,10 @@ def do_single(S):
     S.status_msg = ""
     init_inventory(S)
     S.state = STATE_LOCAL
+    if hasattr(S, "enemy_mgr") and S.enemy_mgr:
+        S.enemy_mgr.enemies = []
+        if hasattr(S.enemy_mgr, "spawn_initial_encounters"):
+            S.enemy_mgr.spawn_initial_encounters(S, fx, fy, count=6)
 
 
 def do_local(S):
@@ -1042,6 +1046,11 @@ def do_local(S):
     S.status_msg = ""
     init_inventory(S)
     S.state = STATE_LOCAL
+    if hasattr(S, "enemy_mgr") and S.enemy_mgr:
+        S.enemy_mgr.enemies = []
+        cx, cy = centroid(S.local_players)
+        if hasattr(S.enemy_mgr, "spawn_initial_encounters"):
+            S.enemy_mgr.spawn_initial_encounters(S, cx, cy, count=6 + n * 2)
 
 
 # --- world play helpers (shared by single / local / online) ---
@@ -2122,6 +2131,7 @@ def select_hotbar_slot(S, slot_idx):
                 S.my_weapon = wep_name
                 play_sfx(S, "wood", 0.45)
                 return
+    S.my_weapon = None
 
 
 def init_inventory(S, force=False):
@@ -4700,10 +4710,10 @@ def frame(S, events, dt, now):
                 fire_triggered = False
 
         if fire_triggered and not getattr(S, "chat_open", False) and not getattr(S, "show_settings", False) and not getattr(S, "notepad_open", False) and not getattr(S, "crafting_open", False) and not getattr(S, "inventory_open", False) and not getattr(S, "player_is_dead", False):
-            my_weapon = getattr(S, "my_weapon", "AK47")
-            wep = WEAPONS.get(my_weapon)
+            my_weapon = getattr(S, "my_weapon", None)
+            wep = WEAPONS.get(my_weapon) if my_weapon else None
             last_fire = getattr(S, "last_fire_time", 0.0)
-            fire_rate = getattr(wep, "fire_rate", 0.2) if wep else 0.2
+            fire_rate = getattr(wep, "fire_rate", 0.25) if wep else 0.25
             can_fire = (now - last_fire) >= fire_rate
             if wep and can_fire:
                 S.pressing = True
@@ -4779,6 +4789,12 @@ def frame(S, events, dt, now):
                         vwx, vwy, sa = fire_proj(wep.bullet_speed, 0)
                         p_dmg = 45 if my_weapon == "M24" else (2 if my_weapon == "MP5" else (3 if my_weapon in ("Gun", "M92", "Luger") else (6 if my_weapon == "Revolver" else 8)))
                         S.bullets.append({"wx": bx, "wy": by, "z": gun_z, "vx": vwx, "vy": vwy, "sa": sa, "life": 2.0, "img": wep.bullet_image, "damage": getattr(wep, "damage", 25), "poise_dmg": p_dmg, "wep_name": my_weapon})
+            elif not wep and can_fire and pygame.mouse.get_pressed()[0]:
+                sel_idx = getattr(S, "selected_slot", 0)
+                sel_slot = S.hotbar[sel_idx] if (hasattr(S, "hotbar") and 0 <= sel_idx < len(S.hotbar)) else None
+                if sel_slot and sel_slot.get("type") in ("apple", "bread", "meat", "fish", "mushroom"):
+                    use_hotbar_item(S, sel_idx)
+                    S.last_fire_time = now
 
         # Celestial spin lifecycle update
         if getattr(S, "tool_spin_active", False):
