@@ -59,10 +59,8 @@ A. Node Health Tracking:
     S.prop_health[(cx, cy)].
 
 B. Tool Damage Affinity:
-  - Pickaxe: Deals 35-52 damage per hit (Destroys node in 2 to 3 hits).
-  - Hammer / Shovel: Deals 22-37 damage per hit (Destroys node in 3 to 5 hits).
-  - Sword / Axes: Deals 12-15 damage per hit (Inefficient but possible).
-  - Unarmed / Non-tools: 5 damage per hit.
+  - Pickaxe: STRICT EXCLUSIVE TOOL. Deals 35-52 damage per hit (Destroys node in 2 to 3 hits).
+  - All Other Tools / Weapons / Firearms: Ineffective! Striking stone or ores with non-Pickaxe tools or firearms deflects with metallic ricochet audio and displays "Requires Pickaxe" indicator without dealing damage.
 
 C. Visual & Audio Feedback per Strike:
   - Resonant metallic ping audio: play_sfx(S, "mine", 0.55).

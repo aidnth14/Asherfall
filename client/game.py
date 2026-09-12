@@ -378,7 +378,11 @@ def execute_mining_or_chopping(S, now, target_p, mx=None, my=None):
     cx, cy = target_cell
     cell, is_tree, is_rock, is_rock_ground, is_destructible = target_info
 
-    # 2. Tool damage and effectiveness
+    # Screen coordinates for impact and requirement indicators
+    sx, sy = S.iso.to_screen(*S.iso.world_px(cx, cy))
+    sy -= S.iso.elev(cx, cy)
+
+    # 2. Tool damage and effectiveness (Strict requirement: Axe for logs, Pickaxe for stone)
     base_dmg = getattr(wep, "damage", 25) if wep else 25
     dmg = base_dmg
     cat_name = DESTRUCTIBLE_CAT_MAP.get(cell[1], "barrel") if is_destructible else None
@@ -399,19 +403,37 @@ def execute_mining_or_chopping(S, now, target_p, mx=None, my=None):
             else:
                 dmg = max(25, base_dmg)
     elif is_tree:
-        if my_weapon in ("Axe", "Sword"):
-            dmg = max(35, int(base_dmg * 1.4))
-        elif my_weapon in ("Mallet", "Hammer"):
-            dmg = max(20, base_dmg)
-        else:
-            dmg = 15
+        if my_weapon != "Axe":
+            play_sfx(S, "mine", 0.4)
+            if not hasattr(S, "damage_popups"):
+                S.damage_popups = []
+            S.damage_popups.append({
+                "x": sx,
+                "y": sy - 28,
+                "text": "Requires Axe",
+                "color": (255, 180, 80),
+                "life": 0.85,
+                "max_life": 0.85,
+                "vy": -30.0
+            })
+            return False
+        dmg = max(35, int(base_dmg * 1.4))
     elif is_rock:
-        if my_weapon == "Pickaxe":
-            dmg = max(35, int(base_dmg * 1.5))
-        elif my_weapon in ("Sword", "Hammer", "Shovel"):
-            dmg = max(25, base_dmg)
-        else:
-            dmg = 12
+        if my_weapon != "Pickaxe":
+            play_bullet_collision_sfx(S)
+            if not hasattr(S, "damage_popups"):
+                S.damage_popups = []
+            S.damage_popups.append({
+                "x": sx,
+                "y": sy - 28,
+                "text": "Requires Pickaxe",
+                "color": (140, 220, 255),
+                "life": 0.85,
+                "max_life": 0.85,
+                "vy": -30.0
+            })
+            return False
+        dmg = max(35, int(base_dmg * 1.5))
 
     # 3. Deduct health
     if not hasattr(S, "prop_health"):
@@ -4896,56 +4918,20 @@ def frame(S, events, dt, now):
                             "color": p_col
                         })
 
-                    # Destroy or damage the hit rock, log, or destructible
-                    if is_tree or is_rock or is_destructible or cell[1] is not None:
+                    # Bullets only damage destructibles (pots, crates, barrels, chests, signs)
+                    # Logs strictly require an Axe, and stones strictly require a Pickaxe
+                    if is_destructible:
                         dmg = b.get("damage", 25)
                         default_hp = 35
-                        if is_destructible:
-                            if cat_name == "pot": default_hp = 20
-                            elif cat_name == "chest": default_hp = 50
-                            elif cat_name in ("sign", "signpost"): default_hp = 25
+                        if cat_name == "pot": default_hp = 20
+                        elif cat_name == "chest": default_hp = 50
+                        elif cat_name in ("sign", "signpost"): default_hp = 25
 
                         health = S.prop_health.get((cx, cy), default_hp) - dmg
                         S.prop_health[(cx, cy)] = health
 
                         if health <= 0:
-                            if is_destructible:
-                                break_destructible(S, cx, cy, cell, cat_name, sx, sy, now)
-                            else:
-                                # Log / rock destroyed!
-                                if cell[1] is not None:
-                                    S.iso.world.cache[(cx, cy)] = (cell[0], None, cell[2])
-                                if is_rock_ground:
-                                    S.iso.world.cache[(cx, cy)] = (0, cell[1], cell[2])
-                                S.iso.world.version += 1
-
-                                # Destruction debris particles
-                                for _ in range(12):
-                                    S.particles.append({
-                                        "x": sx + random.uniform(-14, 14),
-                                        "y": sy - random.uniform(8, 28),
-                                        "vx": random.uniform(-75, 75),
-                                        "vy": random.uniform(-110, -30),
-                                        "life": 0.55,
-                                        "color": p_col
-                                    })
-
-                                # Resource drop
-                                if is_tree:
-                                    for _ in range(random.randint(1, 3)):
-                                        S.dropped_items.append({
-                                            "cx": cx, "cy": cy, "type": "log",
-                                            "z": 15.0, "vz": random.uniform(150, 250),
-                                            "vx": random.uniform(-1.5, 1.5), "vy": random.uniform(-1.5, 1.5)
-                                        })
-                                elif is_rock:
-                                    ore_type = random.choice(["coal", "copper", "iron", "gold", "diamond"])
-                                    for _ in range(random.randint(1, 3)):
-                                        S.dropped_items.append({
-                                            "cx": cx, "cy": cy, "type": ore_type,
-                                            "z": 15.0, "vz": random.uniform(150, 250),
-                                            "vx": random.uniform(-1.5, 1.5), "vy": random.uniform(-1.5, 1.5)
-                                        })
+                            break_destructible(S, cx, cy, cell, cat_name, sx, sy, now)
                     # Bullet consumed and destroyed
                     continue
 

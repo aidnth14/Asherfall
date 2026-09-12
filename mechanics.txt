@@ -63,10 +63,13 @@ E. Dynamic Camera Recoil Shake:
 A. Unified Hit Resolution (execute_mining_or_chopping):
   - Automatically targets cursor hover tile (up to 4.2 tiles reach) and forward
     aim cone projections (1.0, 1.8, 2.5, 3.2 tiles ahead).
-  - Woodchopping: Targets trees, logs, and stumps (IDs 48-60). Axe deals 35-52 dmg.
-    Plays chop.wav, eights sawdust particles, rattles the tree trunk.
-  - Mining: Targets boulders (IDs 62, 64, 65, 67, 68) and ore bedrock (IDs 100, 101).
-    Pickaxe deals 35-52 dmg. Plays mine.wav, stone sparks, rattles the rock.
+  - Woodchopping: Targets trees, logs, and stumps (IDs 48-60). STRICTLY REQUIRES AXE.
+    Axe deals 35-52 dmg, plays chop.wav, emits sawdust particles, rattles trunk.
+    Striking with any other tool/weapon deflects with a "Requires Axe" notification.
+  - Mining: Targets boulders (IDs 62, 64, 65, 67, 68) and ore bedrock (IDs 100, 101). STRICTLY REQUIRES PICKAXE.
+    Pickaxe deals 35-52 dmg, plays mine.wav, stone sparks, rattles the rock.
+    Striking with any other tool/weapon deflects with a "Requires Pickaxe" notification.
+  - Bullets & Firearms: Obstacle collisions deflect harmlessly without damaging logs or stone nodes.
   - Node Depletion: At 0 HP, plays break.wav, bursts 14 stone/wood particles,
     clears the prop, and spawns 2-4 physical bouncing item drops.
 

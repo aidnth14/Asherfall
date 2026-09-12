@@ -13,8 +13,8 @@ A. SWORD ("Blade of Asher")
   - Attack Rate / Cooldown: 0.35 seconds
   - Target Affinity:
       * Enemies: Cleaves in a full 360-degree radius on celestial spin
-      * Trees / Logs: 20-35 damage per strike
-      * Rocks: 12 damage
+      * Destructibles: Smashes barrels, crates, pots, and chests
+      * Trees / Rocks: Ineffective (Logs require Axe; Stone requires Pickaxe)
   - Special FX: Electric cyan-white celestial trail ribbon and directional cuts.
 
 B. AXE ("Lumberjack Cleaver")
@@ -22,9 +22,11 @@ B. AXE ("Lumberjack Cleaver")
   - Hitbox Reach: 2.45 tiles
   - Attack Rate / Cooldown: 0.40 seconds
   - Target Affinity:
-      * Trees / Stumps / Deadfall (IDs 48-60): High efficiency; chops down trees
-        in 2-3 strikes, yielding bouncing logs, sticks, and wood planks.
+      * Trees / Stumps / Logs / Deadfall (IDs 48-60): EXCLUSIVE tool capable of
+        damaging and breaking logs and trees! Chops down trees in 2-3 strikes,
+        yielding bouncing logs, sticks, and wood planks.
       * Enemies: 28 damage with outward knockback.
+      * Destructibles: Cleaves barrels and crates easily.
   - Special FX: Fiery amber-gold sweep arc, flying sawdust and wood chips.
 
 C. PICKAXE ("Miner's Mattock")
@@ -32,10 +34,12 @@ C. PICKAXE ("Miner's Mattock")
   - Hitbox Reach: 2.45 tiles
   - Attack Rate / Cooldown: 0.40 seconds
   - Target Affinity:
-      * Boulders / Spires (IDs 62, 64, 65, 67, 68): Breaks boulders into stone and ores.
-      * Ore Bedrock (IDs 100, 101): Shatters deep deposits to extract iron, coal,
-        copper, gold, and diamonds.
+      * Boulders / Spires (IDs 62, 64, 65, 67, 68): EXCLUSIVE tool capable of
+        damaging and breaking boulders and spires into stone and ores!
+      * Ore Bedrock (IDs 100, 101): EXCLUSIVE tool to shatter deep deposits to extract
+        iron, coal, copper, gold, and diamonds.
       * Enemies: 28 damage with armor-cracking impact.
+      * Destructibles: Breaches reinforced chests and containers.
   - Special FX: High metallic ringing ping (mine.wav), bright white stone sparks.
 
 D. HAMMER ("War Maul")
@@ -44,7 +48,7 @@ D. HAMMER ("War Maul")
   - Attack Rate / Cooldown: 0.40 seconds
   - Knockback Impulse: 14.0 (Highest knockback in the game)
   - Target Affinity:
-      * Shatters stone props and knocks large enemies across terrain.
+      * Smashes destructibles and knocks large enemies across terrain.
   - Special FX: Low sub-bass impact thud, expanding ground shockwave.
 
 E. SHOVEL ("Excavator Spade")
@@ -52,14 +56,14 @@ E. SHOVEL ("Excavator Spade")
   - Hitbox Reach: 2.20 tiles
   - Attack Rate / Cooldown: 0.40 seconds
   - Target Affinity:
-      * Soil scraping and light rock chipping.
+      * Soil scraping and light earth moving.
 
 F. MALLET ("Woodsman's Mallet")
   - Damage: 22 base
   - Hitbox Reach: 2.20 tiles
   - Attack Rate / Cooldown: 0.40 seconds
   - Target Affinity:
-      * Splitting logs and medium blunt impacts.
+      * Destructible crushing and medium blunt impacts.
 
 G. SCYTHE / HOE ("Harvester's Reaping Blade")
   - Damage: 20 base
