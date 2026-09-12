@@ -369,13 +369,13 @@ class BaseEnemy:
             t = pygame.time.get_ticks() / 200.0
             for si in range(3):
                 sang = t + (si * (2 * math.pi / 3))
-                star_x = sx + math.cos(sang) * (14 * S.iso.scale)
-                star_y = sy - (38 * S.iso.scale) + math.sin(sang) * (4 * S.iso.scale)
+                star_x = sx + math.cos(sang) * (11 * S.iso.scale)
+                star_y = sy - (28 * S.iso.scale) + math.sin(sang) * (4 * S.iso.scale)
                 pygame.draw.circle(screen, (255, 235, 70), (int(star_x), int(star_y)), max(2, int(2.5 * S.iso.scale)))
 
         # 2. Alert indicator ("!" bubble)
         elif self.state == STATE_ALERT:
-            bubble_y = sy - (38 * S.iso.scale)
+            bubble_y = sy - (28 * S.iso.scale)
             pygame.draw.circle(screen, (240, 190, 40), (int(sx), int(bubble_y)), int(6 * S.iso.scale))
             pygame.draw.circle(screen, (20, 20, 20), (int(sx), int(bubble_y)), int(6 * S.iso.scale), 1)
             # exclamation mark
@@ -384,16 +384,16 @@ class BaseEnemy:
 
         # 3. Windup glint
         elif self.state == STATE_WINDUP:
-            bubble_y = sy - (34 * S.iso.scale)
+            bubble_y = sy - (25 * S.iso.scale)
             # Red flash warning
             pygame.draw.circle(screen, (255, 60, 60), (int(sx), int(bubble_y)), int(4 * S.iso.scale))
 
         # 4. Health & Poise Bars
         if not self.is_dead and (self.hp < self.max_hp or self.current_poise < self.max_poise):
-            bar_w = int(22 * S.iso.scale)
+            bar_w = int(16 * S.iso.scale)
             bar_h = 2
             bx = int(sx - bar_w // 2)
-            by = int(sy - 26 * S.iso.scale)
+            by = int(sy - 18 * S.iso.scale)
 
             # Health bar (Red/Orange)
             pygame.draw.rect(screen, (30, 30, 30), (bx, by, bar_w, bar_h))

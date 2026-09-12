@@ -52,10 +52,10 @@ class EnemyManager:
         self.director_phase = PHASE_BUILDUP
         self.phase_timer = 0.0
         self.spawn_timer = 0.0
-        self.base_spawn_interval = 2.8
-        self.spawn_interval = 2.8
-        self.max_enemies = 10
-        self.relief_duration = 4.0
+        self.base_spawn_interval = 4.2
+        self.spawn_interval = 4.2
+        self.max_enemies = 6
+        self.relief_duration = 5.0
         self.performance_events = []  # [(timestamp, score_delta)]
 
         # Movement Tracking
@@ -196,13 +196,13 @@ class EnemyManager:
         # Combat Intensity Check:
         player_hp = getattr(S, "player_health", 100)
         active_threats = sum(1 for e in self.enemies if not e.is_dead and e.state in ("CHASE", "ATTACK"))
-        if player_hp < 25 and active_threats >= 2:
+        if player_hp < 30 and active_threats >= 2:
             return None
-        if active_threats >= 6:
+        if active_threats >= 3:
             return None
 
         # Randomizer Step 1: Decision on spawn roll
-        spawn_chance = 0.90 if len(self.enemies) == 0 else (0.50 if self.director_phase == PHASE_RELIEF else 0.80)
+        spawn_chance = 0.70 if len(self.enemies) == 0 else (0.35 if self.director_phase == PHASE_RELIEF else 0.55)
         if random.random() > spawn_chance:
             return None
 
@@ -286,7 +286,7 @@ class EnemyManager:
             mtype = self._pick_terrain_affinity_type(S, chosen_x, chosen_y)
             return self._spawn_by_type(mtype, chosen_x, chosen_y, S)
 
-    def spawn_initial_encounters(self, S, cx, cy, count=6):
+    def spawn_initial_encounters(self, S, cx, cy, count=4):
         """Populates the initial world around the player with engaging monster encounters."""
         types = ["soldier", "orc", "blood", "rat", "demon", "skull", "golem", "bat"]
         for _ in range(count):
@@ -300,7 +300,7 @@ class EnemyManager:
                     mtype = random.choice(types)
                     self._spawn_by_type(mtype, fx, fy, S)
 
-    def spawn_wave(self, S, count=3):
+    def spawn_wave(self, S, count=2):
         """Spawn enemies using directional player heading if available, or forward sector."""
         target_p = _get_target_player(S)
         if not target_p:
@@ -317,17 +317,17 @@ class EnemyManager:
         perf_score = sum(s for _, s in self.performance_events)
 
         if perf_score > 5.0:  # Cruising
-            self.spawn_interval = self.base_spawn_interval * 0.75  # 25% faster
-            self.max_enemies = 14  # Active, thrilling world
-            self.relief_duration = 3.5
+            self.spawn_interval = self.base_spawn_interval * 0.80  # 20% faster
+            self.max_enemies = 8   # Controlled challenge
+            self.relief_duration = 4.0
         elif perf_score < -5.0:  # Struggling
-            self.spawn_interval = self.base_spawn_interval * 1.30  # 30% slower
-            self.max_enemies = 6   # Reasonable minimum
-            self.relief_duration = 8.0
+            self.spawn_interval = self.base_spawn_interval * 1.35  # 35% slower
+            self.max_enemies = 4   # Low pressure
+            self.relief_duration = 9.0
         else:  # Balanced
             self.spawn_interval = self.base_spawn_interval
-            self.max_enemies = 10
-            self.relief_duration = 4.0
+            self.max_enemies = 6
+            self.relief_duration = 5.0
 
         active_threats = sum(1 for e in self.enemies if not e.is_dead and e.state in ("CHASE", "ATTACK", "WINDUP", "ALERT"))
 
@@ -390,7 +390,7 @@ class EnemyManager:
         # 3. Continuous spawning: runs whether player is sprinting, walking, or stationary
         if getattr(S, "state", "") in ("test", "local", 2, 3, 4):
             self.spawn_timer += dt
-            interval = 1.2 if len(self.enemies) == 0 else (self.spawn_interval if self.director_phase != PHASE_RELIEF else (self.spawn_interval * 1.3))
+            interval = 2.5 if len(self.enemies) == 0 else (self.spawn_interval if self.director_phase != PHASE_RELIEF else (self.spawn_interval * 1.4))
             if self.spawn_timer >= interval:
                 self.spawn_timer = 0.0
                 if len(self.enemies) < self.max_enemies and players:
@@ -520,7 +520,7 @@ class EnemyManager:
                     if e.is_dead:
                         continue
                     dist = math.hypot(e.gx - cx, e.gy - cy)
-                    if dist < 1.4:
+                    if dist < 1.0:
                         # Direct hit!
                         damage = b.get("damage", 25)
                         vx = b.get("vx", 0.0)

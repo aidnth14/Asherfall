@@ -22,16 +22,16 @@ B. Rolling 60-Second Performance Score & Dynamic Difficulty:
       * Damage Taken: -0.05 points per HP lost
       * Near-Death State (HP < 20%): -4.0 points
   - Cruising State (Score > +5.0):
-      * PEAK phase spawns 25% faster.
-      * Pack capacity increases to 14 active enemies.
-      * Spawn interval drops to ~2.1s for high-intensity action.
+      * PEAK phase spawns 20% faster.
+      * Pack capacity increases to 8 active enemies.
+      * Spawn interval ~3.4s for controlled challenge.
   - Struggling State (Score < -5.0):
-      * PEAK phase spawns 30% slower.
-      * Pack capacity reduced to 6 active enemies.
-      * RELIEF phase stretches to 8.0 seconds for player recovery.
+      * PEAK phase spawns 35% slower.
+      * Pack capacity reduced to 4 active enemies.
+      * RELIEF phase stretches to 9.0 seconds for player recovery.
   - Balanced State:
-      * Base spawn interval 2.8s, pack capacity 10 active enemies.
-      * All enemy sprites scaled up by +80% (1.8x base scale) with matched hitboxes (1.4 tiles).
+      * Base spawn interval 4.2s, pack capacity 6 active enemies.
+      * Enemy sprites tuned 0.4x smaller with matched hitboxes (1.0 tiles).
 
 C. Dynamic Group Positioning (Anti-Stacking):
   - When 2 or more enemies target the player, they claim distinct angular slots

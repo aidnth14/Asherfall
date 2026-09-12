@@ -1027,7 +1027,7 @@ def do_single(S):
     if hasattr(S, "enemy_mgr") and S.enemy_mgr:
         S.enemy_mgr.enemies = []
         if hasattr(S.enemy_mgr, "spawn_initial_encounters"):
-            S.enemy_mgr.spawn_initial_encounters(S, fx, fy, count=6)
+            S.enemy_mgr.spawn_initial_encounters(S, fx, fy, count=4)
 
 
 def do_local(S):
@@ -1050,7 +1050,7 @@ def do_local(S):
         S.enemy_mgr.enemies = []
         cx, cy = centroid(S.local_players)
         if hasattr(S.enemy_mgr, "spawn_initial_encounters"):
-            S.enemy_mgr.spawn_initial_encounters(S, cx, cy, count=6 + n * 2)
+            S.enemy_mgr.spawn_initial_encounters(S, cx, cy, count=4 + n)
 
 
 # --- world play helpers (shared by single / local / online) ---
