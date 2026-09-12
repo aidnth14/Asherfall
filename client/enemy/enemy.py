@@ -3957,13 +3957,14 @@ class EnemyManager:
         # Combat Intensity Check:
         player_hp = getattr(S, "player_health", 100)
         active_threats = sum(1 for e in self.enemies if not e.is_dead and e.state in ("CHASE", "ATTACK"))
-        if player_hp < 30 and active_threats >= 2:
+        if player_hp < 25 and active_threats >= 3:
             return None
-        if active_threats >= 3:
+        if active_threats >= 6:
             return None
 
         # Randomizer Step 1: Decision on spawn roll
-        spawn_chance = 0.70 if len(self.enemies) == 0 else (0.35 if self.director_phase == PHASE_RELIEF else 0.55)
+        alive_count = sum(1 for e in self.enemies if not e.is_dead)
+        spawn_chance = 0.85 if alive_count == 0 else (0.50 if self.director_phase == PHASE_RELIEF else 0.70)
         if random.random() > spawn_chance:
             return None
 
@@ -4007,7 +4008,7 @@ class EnemyManager:
         # Randomizer Step 3: Choose Encounter Archetype
         # Archetypes: 'solo' (50%), 'rat_pack' (20%), 'flier_duo' (15%), 'elite_squad' (15%)
         # Pack archetypes only spawn if enemy cap has enough space
-        free_slots = self.max_enemies - len(self.enemies)
+        free_slots = max(0, self.max_enemies - alive_count)
         archetypes = ["solo"]
         if free_slots >= 2:
             archetypes.extend(["rat_pack", "flier_duo", "elite_squad"])
@@ -4151,10 +4152,11 @@ class EnemyManager:
         # 3. Continuous spawning: runs whether player is sprinting, walking, or stationary
         if getattr(S, "state", "") in ("test", "local", 2, 3, 4):
             self.spawn_timer += dt
-            interval = 2.5 if len(self.enemies) == 0 else (self.spawn_interval if self.director_phase != PHASE_RELIEF else (self.spawn_interval * 1.4))
+            alive_count = sum(1 for e in self.enemies if not e.is_dead)
+            interval = 2.0 if alive_count == 0 else (self.spawn_interval if self.director_phase != PHASE_RELIEF else (self.spawn_interval * 1.2))
             if self.spawn_timer >= interval:
                 self.spawn_timer = 0.0
-                if len(self.enemies) < self.max_enemies and players:
+                if alive_count < self.max_enemies and players:
                     if moving_players:
                         mpx, mpy, mheading = random.choice(moving_players)
                     else:
@@ -4163,12 +4165,12 @@ class EnemyManager:
                         mheading = getattr(S, "aim_angle", random.uniform(0, math.pi * 2))
                     self.try_directional_spawn(S, mpx, mpy, mheading)
 
-        # 4. Clean up distant fog wanderers (> 13.0 tiles) & direct idle enemies to stalk player
+        # 4. Clean up distant fog wanderers (> 10.5 tiles)
         if players:
             for e in self.enemies:
                 if not e.is_dead:
                     min_dist_to_player = min(math.hypot(e.gx - px, e.gy - py) for _, px, py in players)
-                    if min_dist_to_player > 13.0:
+                    if min_dist_to_player > 10.5:
                         e.remove_ready = True
 
         # 5. Update each active enemy
@@ -4275,13 +4277,13 @@ class EnemyManager:
                 bullet_consumed = False
                 bx = b.get("wx", 0.0)
                 by = b.get("wy", 0.0)
-                cx, cy = S.iso.cell_at(bx, by) if abs(bx) > 50 else (bx, by)
+                cx, cy = bx, by
 
                 for e in self.enemies:
                     if e.is_dead:
                         continue
                     dist = math.hypot(e.gx - cx, e.gy - cy)
-                    if dist < 1.15:
+                    if dist < 1.35:
                         # Direct hit!
                         damage = b.get("damage", 25)
                         vx = b.get("vx", 0.0)
@@ -4354,7 +4356,7 @@ class EnemyManager:
                                 esy -= S.iso.elev(e.gx, e.gy) + 14
                                 screen_ang_to_e = math.atan2(esy - psy, esx - psx)
                                 diff = abs((screen_ang_to_e - aim + math.pi) % (2 * math.pi) - math.pi)
-                                if (diff < 1.95 or dist <= 1.45) and getattr(e, "hurt_timer", 0) <= 0.05:
+                                if diff < 1.95 or dist <= 1.45:
                                     can_hit = True
 
                             if can_hit and getattr(e, "hurt_timer", 0) <= 0.08:

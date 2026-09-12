@@ -405,33 +405,11 @@ def execute_mining_or_chopping(S, now, target_p, mx=None, my=None):
     elif is_tree:
         if my_weapon != "Axe":
             play_sfx(S, "mine", 0.4)
-            if not hasattr(S, "damage_popups"):
-                S.damage_popups = []
-            S.damage_popups.append({
-                "x": sx,
-                "y": sy - 28,
-                "text": "Requires Axe",
-                "color": (255, 180, 80),
-                "life": 0.85,
-                "max_life": 0.85,
-                "vy": -30.0
-            })
             return False
         dmg = max(35, int(base_dmg * 1.4))
     elif is_rock:
         if my_weapon != "Pickaxe":
             play_bullet_collision_sfx(S)
-            if not hasattr(S, "damage_popups"):
-                S.damage_popups = []
-            S.damage_popups.append({
-                "x": sx,
-                "y": sy - 28,
-                "text": "Requires Pickaxe",
-                "color": (140, 220, 255),
-                "life": 0.85,
-                "max_life": 0.85,
-                "vy": -30.0
-            })
             return False
         dmg = max(35, int(base_dmg * 1.5))
 
