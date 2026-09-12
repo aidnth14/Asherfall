@@ -369,13 +369,13 @@ class BaseEnemy:
             t = pygame.time.get_ticks() / 200.0
             for si in range(3):
                 sang = t + (si * (2 * math.pi / 3))
-                star_x = sx + math.cos(sang) * (11 * S.iso.scale)
-                star_y = sy - (28 * S.iso.scale) + math.sin(sang) * (4 * S.iso.scale)
+                star_x = sx + math.cos(sang) * (12 * S.iso.scale)
+                star_y = sy - (32 * S.iso.scale) + math.sin(sang) * (4 * S.iso.scale)
                 pygame.draw.circle(screen, (255, 235, 70), (int(star_x), int(star_y)), max(2, int(2.5 * S.iso.scale)))
 
         # 2. Alert indicator ("!" bubble)
         elif self.state == STATE_ALERT:
-            bubble_y = sy - (28 * S.iso.scale)
+            bubble_y = sy - (32 * S.iso.scale)
             pygame.draw.circle(screen, (240, 190, 40), (int(sx), int(bubble_y)), int(6 * S.iso.scale))
             pygame.draw.circle(screen, (20, 20, 20), (int(sx), int(bubble_y)), int(6 * S.iso.scale), 1)
             # exclamation mark
@@ -384,16 +384,16 @@ class BaseEnemy:
 
         # 3. Windup glint
         elif self.state == STATE_WINDUP:
-            bubble_y = sy - (25 * S.iso.scale)
+            bubble_y = sy - (28 * S.iso.scale)
             # Red flash warning
             pygame.draw.circle(screen, (255, 60, 60), (int(sx), int(bubble_y)), int(4 * S.iso.scale))
 
         # 4. Health & Poise Bars
         if not self.is_dead and (self.hp < self.max_hp or self.current_poise < self.max_poise):
-            bar_w = int(16 * S.iso.scale)
+            bar_w = int(18 * S.iso.scale)
             bar_h = 2
             bx = int(sx - bar_w // 2)
-            by = int(sy - 18 * S.iso.scale)
+            by = int(sy - 21 * S.iso.scale)
 
             # Health bar (Red/Orange)
             pygame.draw.rect(screen, (30, 30, 30), (bx, by, bar_w, bar_h))
@@ -444,12 +444,18 @@ def get_scaled_frame(frame, scale_factor, flip_x=False):
 
 _ENEMY_SHADOW_CACHE = {}
 def get_enemy_shadow(sw, sh):
-    """Zero-allocation shadow surface cache."""
-    sw, sh = max(2, int(sw)), max(2, int(sh))
+    """Zero-allocation soft contact shadow cache."""
+    sw, sh = max(4, int(sw)), max(2, int(sh))
     cached = _ENEMY_SHADOW_CACHE.get((sw, sh))
     if cached is not None:
         return cached
     surf = pygame.Surface((sw, sh), pygame.SRCALPHA)
-    pygame.draw.ellipse(surf, (0, 0, 0, 85), (0, 0, sw, sh))
+    # Dual-layer feathered shadow: soft ambient rim + grounded contact core
+    pygame.draw.ellipse(surf, (0, 0, 0, 50), (0, 0, sw, sh))
+    core_w = max(2, int(sw * 0.72))
+    core_h = max(2, int(sh * 0.72))
+    cx = (sw - core_w) // 2
+    cy = (sh - core_h) // 2
+    pygame.draw.ellipse(surf, (0, 0, 0, 90), (cx, cy, core_w, core_h))
     _ENEMY_SHADOW_CACHE[(sw, sh)] = surf
     return surf

@@ -322,17 +322,17 @@ class Golem(BaseEnemy):
             self.draw_water_ripples(S, screen, sx, sy)
             sy += math.sin((pygame.time.get_ticks() / 1000.0) * 4.0 + self.water_bob_phase) * (2.0 * S.iso.scale)
         elif not self.is_dead:
-            sw, sh = int(20 * S.iso.scale), int(10 * S.iso.scale)
+            sw, sh = int(26 * S.iso.scale), int(13 * S.iso.scale)
             screen.blit(get_enemy_shadow(sw, sh), (int(sx - sw // 2), int(sy - sh // 2)))
 
         frames = Golem.SPRITE_CACHE.get(self.current_anim, [])
         if frames:
             idx = int(self.frame_index) % len(frames)
             frame = frames[idx]
-            scale_factor = S.iso.scale * 1.13
+            scale_factor = S.iso.scale * 1.47
             scaled_frame = get_scaled_frame(frame, scale_factor, self.facing_left)
             anchor_x = int(32 * scale_factor)
-            anchor_y = int(48 * scale_factor)
+            anchor_y = int(46 * scale_factor)
 
             # Death animation sink and fade
             death_sink = 0.0

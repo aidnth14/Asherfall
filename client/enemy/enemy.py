@@ -520,7 +520,7 @@ class EnemyManager:
                     if e.is_dead:
                         continue
                     dist = math.hypot(e.gx - cx, e.gy - cy)
-                    if dist < 1.0:
+                    if dist < 1.15:
                         # Direct hit!
                         damage = b.get("damage", 25)
                         vx = b.get("vx", 0.0)

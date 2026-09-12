@@ -394,14 +394,14 @@ class Soldier(BaseEnemy):
             self.draw_water_ripples(S, screen, sx, sy)
             sy += math.sin((pygame.time.get_ticks() / 1000.0) * 5.0 + self.water_bob_phase) * (2.0 * S.iso.scale)
         elif not self.is_dead:
-            sw, sh = int(16 * S.iso.scale), int(8 * S.iso.scale)
+            sw, sh = int(20 * S.iso.scale), int(10 * S.iso.scale)
             screen.blit(get_enemy_shadow(sw, sh), (int(sx - sw // 2), int(sy - sh // 2)))
 
         frames = Soldier.SPRITE_CACHE.get(self.current_anim, [])
         if frames:
             idx = int(self.frame_index) % len(frames)
             frame = frames[idx]
-            scale_factor = S.iso.scale * 0.89
+            scale_factor = S.iso.scale * 1.16
             scaled_frame = get_scaled_frame(frame, scale_factor, self.facing_left)
             anchor_x = int(frame.get_width() * 0.50 * scale_factor)
             anchor_y = int(frame.get_height() * 0.60 * scale_factor)
